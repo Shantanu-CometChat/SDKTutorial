@@ -26,7 +26,6 @@ class _ConversationListState extends State<ConversationList>
     with MessageListener {
   final List<Conversation> conversationList = [];
   final itemFetcher = ItemFetcher<Conversation>();
-  late ScrollController controller;
 
   bool isLoading = true;
   bool hasMoreItems = true;
@@ -298,7 +297,7 @@ class _ConversationListState extends State<ConversationList>
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Chats"),
+        title: const Text("Chats"),
       ),
       body: Container(
         padding: const EdgeInsets.only(left: 16.0, right: 16),
@@ -325,7 +324,6 @@ class _ConversationListState extends State<ConversationList>
                     itemCount: hasMoreItems
                         ? conversationList.length + 1
                         : conversationList.length,
-                    controller: controller,
                     itemBuilder: (BuildContext context, int index) {
                       if (index >= conversationList.length) {
                         _loadMore();

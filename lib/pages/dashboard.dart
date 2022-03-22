@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:sdk_tutorial/pages/conversation_list.dart';
+import 'package:sdk_tutorial/pages/group_list.dart';
 import 'package:sdk_tutorial/pages/user_list.dart';
 
 class DashBoard extends StatelessWidget {
@@ -47,10 +48,10 @@ class DashBoard extends StatelessWidget {
               elevation: 5,
               child: ListTile(
                 onTap: () {
-                  // Navigator.push(
-                  //     context,
-                  //     MaterialPageRoute(
-                  //         builder: (context) => const AvatarSample()));
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => const CometChatGroupList()));
                 },
                 title: const Text("Group List"),
               ),
