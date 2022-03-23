@@ -9,6 +9,53 @@ class CometChatGroupList extends StatefulWidget {
 }
 
 class _CometChatGroupListState extends State<CometChatGroupList> {
+  List<Group> groupList = [];
+
+  bool isLoading = true;
+  bool hasMoreGroups = true;
+
+  late GroupsRequest groupsRequest;
+
+  @override
+  void initState() {
+    super.initState();
+    groupsRequest = (GroupsRequestBuilder()..limit = 30
+        // ..searchKeyword = "abc"
+        // ..joinedOnly = true
+        // ..tags = []
+        // ..withTags = true
+        )
+        .build();
+
+    loadMoreGroups();
+  }
+
+  //Function to load more groups
+  void loadMoreGroups() {
+    isLoading = true;
+
+    groupsRequest.fetchNext(
+        onSuccess: (List<Group> fetchedList) {
+          //-----if fetch list is empty then there no more users left----
+          print(fetchedList);
+
+          if (fetchedList.isEmpty) {
+            setState(() {
+              isLoading = false;
+              hasMoreGroups = false;
+            });
+          }
+          //-----else more users will be fetch at end of list----
+          else {
+            setState(() {
+              isLoading = false;
+              groupList.addAll(fetchedList);
+            });
+          }
+        },
+        onError: (CometChatException exception) {});
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -17,38 +64,34 @@ class _CometChatGroupListState extends State<CometChatGroupList> {
       ),
       body: Padding(
         padding: const EdgeInsets.only(left: 16.0, right: 16),
-        child: FutureBuilder<List<Group>>(
-          future: _initGetGroups(),
-          builder: (BuildContext context, AsyncSnapshot<List<Group>> snapshot) {
-            if (snapshot.connectionState == ConnectionState.waiting) {
-              return const Center(child: CircularProgressIndicator());
+        child: ListView.builder(
+          padding: EdgeInsets.zero,
+          itemCount: hasMoreGroups ? groupList.length + 1 : groupList.length,
+          itemBuilder: (context, index) {
+            if (index >= groupList.length && hasMoreGroups) {
+              //-----if end of list then fetch more users-----
+              loadMoreGroups();
+              return const Center(
+                child: CircularProgressIndicator(),
+              );
             }
-            final groupList = snapshot.data ?? [];
-            return ListView.builder(
-              padding: EdgeInsets.zero,
-              itemCount: groupList.length,
-              itemBuilder: (context, index) {
-                final group = groupList[index];
+            final group = groupList[index];
 
-                return Text(group.name);
-              },
-            );
+            return SizedBox(
+                height: 72,
+                child: ListTile(
+                  leading: CircleAvatar(
+                      child: Image.network(
+                    group.icon,
+                    errorBuilder: (context, object, trace) {
+                      return Text(group.name.substring(0, 1));
+                    },
+                  )),
+                  title: Text(group.name),
+                ));
           },
         ),
       ),
     );
-  }
-
-  Future<List<Group>> _initGetGroups() async {
-    List<Group> groups = await (GroupsRequestBuilder()..limit = 30)
-        .build()
-        .fetchNext(onSuccess: (List<Group> groupList) {
-      debugPrint("Group List Fetched Successfully : $groupList");
-    }, onError: (CometChatException e) {
-      debugPrint("Group List Fetch Failed: ${e.message}");
-    });
-    //Logger().d(user);
-
-    return groups;
   }
 }

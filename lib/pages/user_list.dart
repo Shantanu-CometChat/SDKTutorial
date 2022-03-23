@@ -62,6 +62,19 @@ class _CometChatUserListState extends State<CometChatUserList> {
         onError: (CometChatException exception) {});
   }
 
+  Widget getUserListTile(User user) {
+    return ListTile(
+      leading: CircleAvatar(
+          child: Image.network(
+        user.avatar ?? '',
+        errorBuilder: (context, object, trace) {
+          return Text(user.name.substring(0, 1));
+        },
+      )),
+      title: Text(user.name),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -81,9 +94,21 @@ class _CometChatUserListState extends State<CometChatUserList> {
                     child: CircularProgressIndicator(),
                   );
                 }
+
                 final user = userList[index];
 
-                return SizedBox(height: 72, child: Text(user.name));
+                return SizedBox(
+                    height: 72,
+                    child: ListTile(
+                      leading: CircleAvatar(
+                          child: Image.network(
+                        user.avatar ?? '',
+                        errorBuilder: (context, object, trace) {
+                          return Text(user.name.substring(0, 1));
+                        },
+                      )),
+                      title: Text(user.name),
+                    ));
               },
             )));
   }
