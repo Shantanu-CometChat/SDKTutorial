@@ -1,22 +1,32 @@
 import 'package:cometchat/cometchat_sdk.dart';
 import 'package:flutter/material.dart';
 
-class CreateGroup extends StatefulWidget {
-  const CreateGroup({Key? key}) : super(key: key);
+class UpdateGroup extends StatefulWidget {
+  const UpdateGroup({Key? key, required this.group}) : super(key: key);
+  final Group group;
 
   @override
-  _CreateGroupState createState() => _CreateGroupState();
+  _UpdateGroupState createState() => _UpdateGroupState();
 }
 
-class _CreateGroupState extends State<CreateGroup> {
+class _UpdateGroupState extends State<UpdateGroup> {
   final _formKey = GlobalKey<FormState>();
   TextEditingController guidTextController = TextEditingController();
   TextEditingController nameTextController = TextEditingController();
   TextEditingController iconTextController = TextEditingController();
-  TextEditingController decriptionTextController = TextEditingController();
   TextEditingController passwordTextController = TextEditingController();
   String? groupType = "public";
   bool isLoading = false;
+
+  @override
+  void initState() {
+    super.initState();
+    guidTextController.text = widget.group.guid;
+    nameTextController.text = widget.group.name;
+    iconTextController.text = widget.group.icon;
+    groupType = widget.group.type;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -139,8 +149,10 @@ class _CreateGroupState extends State<CreateGroup> {
                       setState(() {
                         isLoading = true;
                       });
-                      Group? group = await CometChat.createGroup(
-                          _GUID, _groupName, _groupType,
+                      Group? group = await CometChat.updateGroup(
+                          guid: _GUID,
+                          groupName: _groupName,
+                          groupType: _groupType,
                           password: _password,
                           onSuccess: (Group group) {},
                           onError: (CometChatException excep) {});
@@ -155,11 +167,11 @@ class _CreateGroupState extends State<CreateGroup> {
                         ));
                       }
                       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-                        content: Text("Group Created"),
+                        content: Text("Group Updated"),
                       ));
                     }
                   },
-                  child: Text("Create")),
+                  child: Text("Update")),
               SizedBox(
                 height: 10,
               ),

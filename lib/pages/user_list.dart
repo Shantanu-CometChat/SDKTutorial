@@ -36,13 +36,13 @@ class _CometChatUserListState extends State<CometChatUserList> {
   }
 
   //Function to load more users
-  void loadMoreUsers() {
+  loadMoreUsers() async {
     isLoading = true;
 
-    usersRequest.fetchNext(
+    await usersRequest.fetchNext(
         onSuccess: (List<User> fetchedList) {
           //-----if fetch list is empty then there no more users left----
-          print(fetchedList);
+          debugPrint(fetchedList.toString());
 
           if (fetchedList.isEmpty) {
             setState(() {
@@ -57,7 +57,6 @@ class _CometChatUserListState extends State<CometChatUserList> {
               userList.addAll(fetchedList);
             });
           }
-          print(hasMoreUsers);
         },
         onError: (CometChatException exception) {});
   }
@@ -81,24 +80,27 @@ class _CometChatUserListState extends State<CometChatUserList> {
         appBar: AppBar(
           title: const Text('Users'),
         ),
-        body: Padding(
-            padding: const EdgeInsets.only(left: 16.0, right: 16),
-            child: ListView.builder(
-              padding: EdgeInsets.zero,
-              itemCount: hasMoreUsers ? userList.length + 1 : userList.length,
-              itemBuilder: (context, index) {
-                if (index >= userList.length && hasMoreUsers) {
-                  //-----if end of list then fetch more users-----
-                  loadMoreUsers();
-                  return const Center(
-                    child: CircularProgressIndicator(),
-                  );
-                }
+        body: ListView.builder(
+          padding: EdgeInsets.zero,
+          itemCount: hasMoreUsers ? userList.length + 1 : userList.length,
+          itemBuilder: (context, index) {
+            if (index >= userList.length && hasMoreUsers) {
+              //-----if end of list then fetch more users-----
+              if (!isLoading) {
+                loadMoreUsers();
+              }
+              return const Center(
+                child: CircularProgressIndicator(),
+              );
+            }
 
-                final user = userList[index];
+            final user = userList[index];
 
-                return SizedBox(
-                    height: 72,
+            return Card(
+              elevation: 8,
+              child: SizedBox(
+                  height: 72,
+                  child: Center(
                     child: ListTile(
                       leading: CircleAvatar(
                           child: Image.network(
@@ -108,8 +110,10 @@ class _CometChatUserListState extends State<CometChatUserList> {
                         },
                       )),
                       title: Text(user.name),
-                    ));
-              },
-            )));
+                    ),
+                  )),
+            );
+          },
+        ));
   }
 }
