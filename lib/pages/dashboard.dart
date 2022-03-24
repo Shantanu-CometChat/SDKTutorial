@@ -2,7 +2,7 @@ import 'package:cometchat/cometchat_sdk.dart';
 import 'package:flutter/material.dart';
 import 'package:sdk_tutorial/constants.dart';
 import 'package:sdk_tutorial/pages/conversation_list.dart';
-import 'package:sdk_tutorial/pages/group_list.dart';
+import 'package:sdk_tutorial/pages/group/group_list.dart';
 import 'package:sdk_tutorial/pages/user_list.dart';
 
 class DashBoard extends StatelessWidget {
@@ -48,7 +48,9 @@ class DashBoard extends StatelessWidget {
                     Navigator.push(
                         context,
                         MaterialPageRoute(
-                            builder: (context) => const CometChatUserList()));
+                            builder: (context) => const CometChatUserList(
+                                  navigateFrom: NavigateFrom.userList,
+                                )));
                   },
                   title: const Text("User List"),
                 ),

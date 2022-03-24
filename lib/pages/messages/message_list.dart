@@ -55,14 +55,14 @@ class _MessageListState extends State<MessageList> with MessageListener {
     CometChat.addMessageListener("listenerId", this);
     if (widget.conversation.conversationType == CometChatReceiverType.user) {
       messageRequest = (MessagesRequestBuilder()
-            ..uid = (widget.conversation.conversationWith as User).uid
-            ..limit = limit)
+        ..uid = (widget.conversation.conversationWith as User).uid
+        ..limit = limit)
           .build();
       appTitle = (widget.conversation.conversationWith as User).name;
     } else {
       messageRequest = (MessagesRequestBuilder()
-            ..guid = (widget.conversation.conversationWith as Group).guid
-            ..limit = limit)
+        ..guid = (widget.conversation.conversationWith as Group).guid
+        ..limit = limit)
           .build();
       appTitle = (widget.conversation.conversationWith as Group).name;
     }
@@ -256,11 +256,11 @@ class _MessageListState extends State<MessageList> with MessageListener {
   reinitiateList() {
     if (widget.conversation.conversationType == CometChatReceiverType.user) {
       messageRequest = (MessagesRequestBuilder()
-            ..uid = (widget.conversation.conversationWith as User).uid)
+        ..uid = (widget.conversation.conversationWith as User).uid)
           .build();
     } else {
       messageRequest = (MessagesRequestBuilder()
-            ..guid = (widget.conversation.conversationWith as Group).guid)
+        ..guid = (widget.conversation.conversationWith as Group).guid)
           .build();
     }
 
@@ -330,7 +330,7 @@ class _MessageListState extends State<MessageList> with MessageListener {
     await CometChat.deleteConversation(
         conversationWith, widget.conversation.conversationType,
         onSuccess: (onSuccess) {
-    }, onError: (error) {});
+        }, onError: (error) {});
   }
 
   getGroup() {
@@ -351,10 +351,10 @@ class _MessageListState extends State<MessageList> with MessageListener {
           (widget.conversation.conversationWith as Group).guid;
       CometChat.getOnlineGroupMemberCount([conversationWith],
           onSuccess: (Map<String, int> count) {
-        debugPrint("Fetched Online Group Member Count Successfully : $count ");
-      }, onError: (CometChatException e) {
-        debugPrint("Online Group Member  failed with exception: ${e.message}");
-      });
+            debugPrint("Fetched Online Group Member Count Successfully : $count ");
+          }, onError: (CometChatException e) {
+            debugPrint("Online Group Member  failed with exception: ${e.message}");
+          });
     }
   }
 
@@ -405,10 +405,10 @@ class _MessageListState extends State<MessageList> with MessageListener {
 
     CometChat.tagConversation(conversationWith, conversationType, tags,
         onSuccess: (Conversation conversation) {
-      debugPrint("Conversation tagged Successfully : $conversation");
-    }, onError: (CometChatException e) {
-      debugPrint("Conversation tagging failed  : ${e.message}");
-    });
+          debugPrint("Conversation tagged Successfully : $conversation");
+        }, onError: (CometChatException e) {
+          debugPrint("Conversation tagging failed  : ${e.message}");
+        });
   }
 
   getConversation() {
@@ -416,10 +416,10 @@ class _MessageListState extends State<MessageList> with MessageListener {
     String conversationType = "user";
     CometChat.getConversation(conversationWith, conversationType,
         onSuccess: (Conversation conversation) {
-      debugPrint("Fetch Conversation Successfully : $conversation");
-    }, onError: (CometChatException e) {
-      debugPrint("Fetch Conversation  failed  : ${e.message}");
-    });
+          debugPrint("Fetch Conversation Successfully : $conversation");
+        }, onError: (CometChatException e) {
+          debugPrint("Fetch Conversation  failed  : ${e.message}");
+        });
   }
 
   sendCustomMessage() {
@@ -447,10 +447,10 @@ class _MessageListState extends State<MessageList> with MessageListener {
 
     CometChat.sendCustomMessage(customMessage,
         onSuccess: (CustomMessage message) {
-      debugPrint("Custom Message Sent Successfully : $message");
-    }, onError: (CometChatException e) {
-      debugPrint("Custom message sending failed with exception: ${e.message}");
-    });
+          debugPrint("Custom Message Sent Successfully : $message");
+        }, onError: (CometChatException e) {
+          debugPrint("Custom message sending failed with exception: ${e.message}");
+        });
   }
 
   getLastMessageId() async {
@@ -496,16 +496,16 @@ class _MessageListState extends State<MessageList> with MessageListener {
           ),
           Expanded(
               child: Stack(
-            children: [
-              TextFormField(
-                focusNode: _focus,
-                controller: TextEditingController(text: messageText),
-                onChanged: (val) {
-                  messageText = val;
-                },
-              ),
-            ],
-          )),
+                children: [
+                  TextFormField(
+                    focusNode: _focus,
+                    controller: TextEditingController(text: messageText),
+                    onChanged: (val) {
+                      messageText = val;
+                    },
+                  ),
+                ],
+              )),
           FloatingActionButton(
               child: const Icon(Icons.attachment),
               backgroundColor: const Color(0xff131513),
@@ -524,14 +524,14 @@ class _MessageListState extends State<MessageList> with MessageListener {
                 }
 
                 FilePickerResult? result =
-                    await FilePicker.platform.pickFiles(type: FileType.image);
+                await FilePicker.platform.pickFiles(type: FileType.image);
                 //String messageType = CometChatMessageType.file;
 
                 if (result != null && result.files.single.path != null) {
                   filePath = result.files.single.path!;
 
                   String? fileExtension =
-                      lookupMimeType(result.files.single.path!);
+                  lookupMimeType(result.files.single.path!);
                   if (fileExtension != null) {
                     if (fileExtension.startsWith("audio")) {
                       messageType = CometChatMessageType.audio;
@@ -554,14 +554,14 @@ class _MessageListState extends State<MessageList> with MessageListener {
 
                   await CometChat.sendMediaMessage(mediaMessage,
                       onSuccess: (MediaMessage message) {
-                    debugPrint(
-                        "Media message sent successfully: ${mediaMessage.metadata}");
-                    _messageList.insert(0, message);
-                    setState(() {});
-                  }, onError: (e) {
-                    debugPrint(
-                        "Media message sending failed with exception: ${e.message}");
-                  });
+                        debugPrint(
+                            "Media message sent successfully: ${mediaMessage.metadata}");
+                        _messageList.insert(0, message);
+                        setState(() {});
+                      }, onError: (e) {
+                        debugPrint(
+                            "Media message sending failed with exception: ${e.message}");
+                      });
                 } else {
                   // User canceled the picker
                 }
@@ -595,16 +595,16 @@ class _MessageListState extends State<MessageList> with MessageListener {
 
                 CometChat.sendMessage(textMessage,
                     onSuccess: (TextMessage message) {
-                  debugPrint("Message sent successfully:  ${message.text}");
+                      debugPrint("Message sent successfully:  ${message.text}");
 
-                  setState(() {
-                    _messageList.insert(0, message);
-                    messageText = "";
-                  });
-                }, onError: (CometChatException e) {
-                  debugPrint(
-                      "Message sending failed with exception:  ${e.message}");
-                });
+                      setState(() {
+                        _messageList.insert(0, message);
+                        messageText = "";
+                      });
+                    }, onError: (CometChatException e) {
+                      debugPrint(
+                          "Message sending failed with exception:  ${e.message}");
+                    });
               }),
           FloatingActionButton(
               child: const Icon(Icons.link),
@@ -640,14 +640,14 @@ class _MessageListState extends State<MessageList> with MessageListener {
 
                 await CometChat.sendMediaMessage(mediaMessage,
                     onSuccess: (MediaMessage message) {
-                  debugPrint(
-                      "Media message sent successfully: ${mediaMessage.metadata}");
-                  _messageList.insert(0, message);
-                  setState(() {});
-                }, onError: (CometChatException e) {
-                  debugPrint(
-                      "Media message sending failed with exception: ${e.message}");
-                });
+                      debugPrint(
+                          "Media message sent successfully: ${mediaMessage.metadata}");
+                      _messageList.insert(0, message);
+                      setState(() {});
+                    }, onError: (CometChatException e) {
+                      debugPrint(
+                          "Media message sending failed with exception: ${e.message}");
+                    });
 
                 String receiverId = "superhero2";
                 Map<String, String> data = {};
@@ -676,18 +676,18 @@ class _MessageListState extends State<MessageList> with MessageListener {
     //     passedMessage: (_messageList[index] as TextMessage),
     // );
 
-      //Text((_messageList[index] as TextMessage).text);
+    //Text((_messageList[index] as TextMessage).text);
 
     if (_messageList[index] is MediaMessage) {
       return MediaMessageWidget(
-          passedMessage: (_messageList[index] as MediaMessage),
-         );
+        passedMessage: (_messageList[index] as MediaMessage),
+      );
     }
     if (_messageList[index] is TextMessage) {
       return MessageWidget(
-            passedMessage: (_messageList[index] as TextMessage),
+        passedMessage: (_messageList[index] as TextMessage),
         deleteFunction: deleteMessage,
-        );
+      );
     }
 
     return const Text("No match");
@@ -699,6 +699,21 @@ class _MessageListState extends State<MessageList> with MessageListener {
       appBar: AppBar(
         title: Text(appTitle),
         actions: <Widget>[
+          GestureDetector(
+              onTap: () {
+                if (widget.conversation.conversationWith is Group) {
+                  Group group = widget.conversation.conversationWith as Group;
+
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => GroupFunctions(
+                                groupId: group.guid,
+                                loggedInUserId: USERID,
+                              )));
+                }
+              },
+              child: Icon(Icons.info_outline)),
           PopupMenuButton<int>(
             onSelected: (item) {
               switch (item) {
@@ -763,31 +778,31 @@ class _MessageListState extends State<MessageList> with MessageListener {
       ),
       body: SafeArea(
           child: Column(
-        children: [
-          Expanded(
-            child: ListView.builder(
-              reverse: true,
-              // to diisplay loading tile if more items
-              itemCount:
+            children: [
+              Expanded(
+                child: ListView.builder(
+                  reverse: true,
+                  // to diisplay loading tile if more items
+                  itemCount:
                   _hasMore ? _messageList.length + 1 : _messageList.length,
-              itemBuilder: (BuildContext context, int index) {
-                // Uncomment the following line to see in real time how ListView.builder works
-                // print('ListView.builder is building index $index');
-                if (index >= _messageList.length) {
-                  // Don't trigger if one async loading is already under way
-                  if (!_isLoading) {
-                    _loadMore();
-                  }
-                  return const LoadingIndicator();
-                }
-                return getMessageWidget(index);
-              },
-            ),
-          ),
-          if (typing == true) getTypingIndicator(),
-          getMessageComposer()
-        ],
-      )),
+                  itemBuilder: (BuildContext context, int index) {
+                    // Uncomment the following line to see in real time how ListView.builder works
+                    // print('ListView.builder is building index $index');
+                    if (index >= _messageList.length) {
+                      // Don't trigger if one async loading is already under way
+                      if (!_isLoading) {
+                        _loadMore();
+                      }
+                      return const LoadingIndicator();
+                    }
+                    return getMessageWidget(index);
+                  },
+                ),
+              ),
+              if (typing == true) getTypingIndicator(),
+              getMessageComposer()
+            ],
+          )),
     );
   }
 }

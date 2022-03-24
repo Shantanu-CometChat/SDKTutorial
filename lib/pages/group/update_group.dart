@@ -31,7 +31,7 @@ class _UpdateGroupState extends State<UpdateGroup> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Create Group"),
+        title: Text("Update Group"),
       ),
       body: SingleChildScrollView(
         child: Form(
