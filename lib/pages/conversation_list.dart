@@ -1,5 +1,6 @@
 import 'package:cometchat/cometchat_sdk.dart';
 import 'package:flutter/material.dart';
+import 'package:sdk_tutorial/pages/messages/message_list.dart';
 
 //----------- fetch items like conversation list,user list ,etc.-----------
 class ItemFetcher<T> {
@@ -37,7 +38,7 @@ class _ConversationListState extends State<ConversationList>
     super.initState();
 
     conversationRequest = (ConversationsRequestBuilder()
-          ..limit = 30
+          ..limit = 2
           ..tags = []
           ..withUserAndGroupTags = true
           ..conversationType = ConversationType.user)
@@ -276,6 +277,15 @@ class _ConversationListState extends State<ConversationList>
       height: 72,
       width: MediaQuery.of(context).size.width,
       child: ListTile(
+        onTap: (){
+          Navigator.push(
+              context,
+              MaterialPageRoute(
+                  builder: (context) =>  MessageList(
+                    conversation: conversationList[index],
+                  )));
+
+        },
         leading: CircleAvatar(
           child: Image.network(_avatar ?? '',
               errorBuilder: (context, object, stackTrace) {

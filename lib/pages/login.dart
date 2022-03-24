@@ -47,19 +47,20 @@ class _LoginState extends State<Login> {
 
   //Login User function must pass userid and authkey should be used only while developing
   loginUser(MaterialButtonUserModel model) async {
-    var user = await CometChat.getLoggedInUser();
-    if (user == null) {
+    User? _user = await CometChat.getLoggedInUser();
+    if (_user == null) {
       await CometChat.login(model.userId, CometChatAuthConstants.authKey,
           onSuccess: (User loggedInUser) {
             debugPrint("Login Successful : $loggedInUser");
-            user = loggedInUser;
+            _user = loggedInUser;
           }, onError: (CometChatException e) {
             debugPrint("Login failed with exception:  ${e.message}");
           });
     }
 
     //if login is successful
-    if (user != null) {
+    if (_user != null) {
+      USERID = _user!.uid;
       Navigator.push(
           context, MaterialPageRoute(builder: (context) => const DashBoard()));
     }
