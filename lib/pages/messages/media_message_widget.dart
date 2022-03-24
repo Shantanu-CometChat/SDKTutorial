@@ -9,6 +9,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:sdk_tutorial/Utils/loading_indicator.dart';
 import 'package:sdk_tutorial/constants.dart';
 import 'package:open_file/open_file.dart';
+import 'package:sdk_tutorial/pages/messages/message_receipts.dart';
 
 
 class MediaMessageWidget extends StatefulWidget {
@@ -81,49 +82,14 @@ class _MediaMessageState extends State<MediaMessageWidget> {
             if (widget.passedMessage.type == CometChatMessageType.file)
               FileCard(passedMessage: widget.passedMessage,),
             if (widget.passedMessage.type == CometChatMessageType.audio)
-              ListTile(
-                onTap: () async {
-                  print("URL is ${widget.passedMessage.attachment!.fileUrl}");
-                  File ab = await _downloadFile(
-                      widget.passedMessage.attachment!.fileUrl,
-                      widget.passedMessage.attachment!.fileName);
-                  print(ab.path);
-
-                  //OpenFile.open(ab.path);
-                },
-                title: Text(widget.passedMessage.caption ?? "no Caption"),
-              ),
+              FileCard(passedMessage: widget.passedMessage,),
             if (sentByMe == true)
-              Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  if (widget.passedMessage.deliveredAt != null)
-                    const Icon(Icons.check_outlined),
-                  if (widget.passedMessage.readAt != null)
-                    const Icon(Icons.check_outlined)
-                ],
-              )
+            MessageReceipts(passedMessage: widget.passedMessage)
+
           ],
         ));
   }
 
-  static var httpClient = HttpClient();
-
-  int byteCount = 0;
-
-  Future<File> _downloadFile(String url, String filename) async {
-    var request = await httpClient.getUrl(Uri.parse(url));
-    var response = await request.close();
-    var bytes = await consolidateHttpClientResponseBytes(response);
-    String dir = Platform.isIOS
-        ? (await getApplicationSupportDirectory()).path
-        : (await getExternalStorageDirectory())!.path;
-    File file = new File('$dir/$filename');
-    print('$dir/$filename');
-    await file.writeAsBytes(bytes);
-    print("File Done");
-    return file;
-  }
 
 
 }
@@ -168,7 +134,7 @@ class _FileCardState extends State<FileCard> {
                 _isDownloading = false;
               });
 
-              OpenFile.open(ab.path);
+              //OpenFile.open(ab.path);
             },
             child: Row(
               mainAxisSize: MainAxisSize.min,

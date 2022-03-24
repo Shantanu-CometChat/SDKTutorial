@@ -70,6 +70,9 @@ flutter:
     - assets/cyclops_avatar.png
     - assets/ironman_avatar.png
     - assets/spiderman_avatar.png
+    - assets/read_icon.png
+    - assets/sent_icon.png
+    - assets/delivered_icon.png
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware.

@@ -14,13 +14,13 @@ class Login extends StatefulWidget {
 class _LoginState extends State<Login> {
   List<MaterialButtonUserModel> userModelList = [
     MaterialButtonUserModel(
-        "superhero1", "SUPERHERO1", "assets/captainamerica_avatar.png"),
+        "superhero1", "SUPERHERO1", "assets/ironman_avatar.png"),
     MaterialButtonUserModel(
-        "superhero2", "SUPERHERO2", "assets/cyclops_avatar.png"),
+        "superhero2", "SUPERHERO2", "assets/captainamerica_avatar.png"),
     MaterialButtonUserModel(
-        "superhero3", "SUPERHERO3", "assets/ironman_avatar.png"),
+        "superhero3", "SUPERHERO3", "assets/spiderman_avatar.png"),
     MaterialButtonUserModel(
-        "superhero4", "SUPERHERO4", "assets/spiderman_avatar.png"),
+        "superhero4", "SUPERHERO5", "assets/cyclops_avatar.png"),
   ];
 
   @override

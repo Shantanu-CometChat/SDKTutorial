@@ -22,9 +22,11 @@ class MessageList extends StatefulWidget {
 }
 
 class _MessageListState extends State<MessageList> with MessageListener {
-  final List _messageList = <BaseMessage>[];
+  final List<BaseMessage> _messageList = <BaseMessage>[];
   final _itemFetcher = ItemFetcher<BaseMessage>();
   final textKey = const ValueKey<int>(1);
+
+  String listenerId = "message_list_listener";
 
   bool _isLoading = true;
   bool _hasMore = true;
@@ -71,6 +73,7 @@ class _MessageListState extends State<MessageList> with MessageListener {
     _loadMore();
   }
 
+
   void _onFocusChange() {
     if (_focus.hasFocus) {
       if (widget.conversation.conversationType == CometChatReceiverType.user) {
@@ -105,28 +108,26 @@ class _MessageListState extends State<MessageList> with MessageListener {
 
   @override
   void dispose() {
-    // TODO: implement dispose
     super.dispose();
     _focus.removeListener(_onFocusChange);
-    CometChat.removeMessageListener("listenerId");
     _focus.dispose();
+
+
+    CometChat.removeMessageListener(listenerId);
+
   }
 
   @override
   void onTextMessageReceived(TextMessage textMessage) async {
 
-    _messageList.add(textMessage);
+    _messageList.insert(0, textMessage);
     setState(() {
-
     });
-
-    CometChat.markAsDelivered(textMessage, onSuccess: (_){}, onError: (_){});
-
+    CometChat.markAsRead(textMessage, onSuccess: (_){}, onError: (_){});
   }
 
   @override
   void onTypingStarted(TypingIndicator typingIndicator) {
-    // TODO: implement onTypingStarted
 
     setState(() {
       if (typingIndicator.sender.uid.toLowerCase().trim() ==
@@ -138,7 +139,6 @@ class _MessageListState extends State<MessageList> with MessageListener {
 
   @override
   void onTypingEnded(TypingIndicator typingIndicator) {
-    // TODO: implement onTypingEnded
     setState(() {
       if (typingIndicator.sender.uid.toLowerCase().trim() ==
           conversationWithId.toLowerCase().trim()) {
@@ -149,18 +149,17 @@ class _MessageListState extends State<MessageList> with MessageListener {
 
   @override
   void onMediaMessageReceived(MediaMessage mediaMessage) {
-    // TODO: implement onMediaMessageReceived
-
 
     if (mounted == true) {
       _messageList.insert(0, mediaMessage);
       setState(() {});
     }
+
+    CometChat.markAsRead(mediaMessage, onSuccess: (_){}, onError: (_){});
   }
 
   @override
   void onMessagesDelivered(MessageReceipt messageReceipt) {
-    // TODO: implement onMessagesDelivered
     if (mounted == true) {
       for (int i = 0; i < _messageList.length; i++) {
         if (_messageList[i].sender!.uid == USERID &&
@@ -175,9 +174,11 @@ class _MessageListState extends State<MessageList> with MessageListener {
 
   @override
   void onMessagesRead(MessageReceipt messageReceipt) {
-    if (mounted == true) {
-      //reinitiateList();
-    }
+    int matchingIndex = _messageList.indexWhere(
+            (element) => (element.id == messageReceipt.messageId));
+
+    _messageList[matchingIndex].readAt =  messageReceipt.readAt;
+
   }
 
   @override
@@ -196,15 +197,13 @@ class _MessageListState extends State<MessageList> with MessageListener {
 
   @override
   void onMessageDeleted(BaseMessage message) {
-    if (mounted == true) {
-      for (int count = 0; count < _messageList.length; count++) {
-        if (message.id == _messageList[count].id) {
-          _messageList.removeAt(count);
-          setState(() {});
-          break;
-        }
-      }
-    }
+
+    int matchingIndex = _messageList.indexWhere(
+            (element) => (element.id == message.id));
+
+    _messageList.removeAt(matchingIndex);
+    setState(() {});
+
   }
 
   @override
@@ -299,6 +298,18 @@ class _MessageListState extends State<MessageList> with MessageListener {
         ));
       });
     }
+  }
+
+  deleteMessage(BaseMessage message) async {
+    int matchingIndex = _messageList.indexWhere(
+            (element) => (element.id == message.id));
+
+    await CometChat.deleteMessage(message.id, onSuccess: (_){}, onError: (_){});
+
+    _messageList.removeAt(matchingIndex);
+    setState(() {
+
+    });
   }
 
   unblockUser() async {
@@ -513,12 +524,10 @@ class _MessageListState extends State<MessageList> with MessageListener {
                 }
 
                 FilePickerResult? result =
-                    await FilePicker.platform.pickFiles(type: FileType.any);
+                    await FilePicker.platform.pickFiles(type: FileType.image);
                 //String messageType = CometChatMessageType.file;
 
                 if (result != null && result.files.single.path != null) {
-                  // File file = File(result.files.single.path!);
-                  // print(lookupMimeType(result.files.single.path!));
                   filePath = result.files.single.path!;
 
                   String? fileExtension =
@@ -542,17 +551,6 @@ class _MessageListState extends State<MessageList> with MessageListener {
                       type: messageType,
                       receiverUid: receiverID,
                       file: filePath);
-
-                  // Map<String, dynamic> metadata = {};
-                  // metadata["lattitude"] = "50.6192171633316";
-                  // metadata["longitude"] = "-72.68182268750002";
-                  // mediaMessage.metadata = metadata;
-                  //
-                  // List<String> tags = [];
-                  // tags.add("pinned");
-                  // mediaMessage.tags = tags;
-                  //
-                  // mediaMessage.caption = "Message Caption";
 
                   await CometChat.sendMediaMessage(mediaMessage,
                       onSuccess: (MediaMessage message) {
@@ -688,6 +686,7 @@ class _MessageListState extends State<MessageList> with MessageListener {
     if (_messageList[index] is TextMessage) {
       return MessageWidget(
             passedMessage: (_messageList[index] as TextMessage),
+        deleteFunction: deleteMessage,
         );
     }
 

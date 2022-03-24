@@ -2,12 +2,16 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:cometchat/cometchat_sdk.dart';
 import 'package:sdk_tutorial/constants.dart';
+import 'package:sdk_tutorial/pages/messages/message_options.dart';
+import 'package:sdk_tutorial/pages/messages/message_receipts.dart';
 
 class MessageWidget extends StatefulWidget {
    TextMessage passedMessage;
+   Function(BaseMessage msg) deleteFunction;
    MessageWidget(
       {Key? key,
       required this.passedMessage,
+        required this.deleteFunction
       })
       : super(key: key);
 
@@ -44,42 +48,21 @@ class _MessageWidgetState extends State<MessageWidget> {
             GestureDetector(
               
               onTap: () async {
-
+                showMessageOptions(
+                  context, widget.deleteFunction, widget.passedMessage
+                );
               },
               child: Card(
-                color: sentByMe==true?Colors.green: Colors.amberAccent,
+                color: Colors.green,
                 child: Padding(
                   padding: const EdgeInsets.all(8.0),
                   child: Text(text ?? ""),
                 ),
               ),
             ),
-            // CometChatMessageReceipt(
-            //   message: widget.passedMessage,
-            //   loggedInUID: USERID,
-            //   sentIcon: Text("Sent"),
-            //   deliveredIcon: Text("delivered"),
-            //   errorIcon: Text("error"),
-            //   readIcon: Text("read"),
-            // ),
-            //
-            // CometChatDate(
-            //   date: DateTime.now(),
-            //   isTransparentBackground: false,
-            //
-            // )
 
-
-            // if (sentByMe == true)
-            //   Row(
-            //     mainAxisSize: MainAxisSize.min,
-            //     children: [
-            //       if (widget.passedMessage.deliveredAt != null)
-            //         Icon(Icons.check_outlined),
-            //       if (widget.passedMessage.readAt != null)
-            //         Icon(Icons.check_outlined)
-            //     ],
-            //   )
+            if (sentByMe == true)
+            MessageReceipts(passedMessage: widget.passedMessage)
           ],
         ));
   }

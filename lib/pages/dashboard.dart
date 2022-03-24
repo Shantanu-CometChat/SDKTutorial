@@ -1,5 +1,6 @@
 import 'package:cometchat/cometchat_sdk.dart';
 import 'package:flutter/material.dart';
+import 'package:sdk_tutorial/constants.dart';
 import 'package:sdk_tutorial/pages/conversation_list.dart';
 import 'package:sdk_tutorial/pages/group_list.dart';
 import 'package:sdk_tutorial/pages/user_list.dart';
@@ -15,6 +16,7 @@ class DashBoard extends StatelessWidget {
             onError: (CometChatException exception) {},
             onSuccess: (Map<String, Map<String, int>> message) {});
         Navigator.of(context).pop();
+        USERID = "";
         return false;
       },
       child: Scaffold(
