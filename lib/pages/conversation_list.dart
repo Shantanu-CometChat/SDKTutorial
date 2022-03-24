@@ -37,11 +37,11 @@ class _ConversationListState extends State<ConversationList>
   void initState() {
     super.initState();
 
-    conversationRequest = (ConversationsRequestBuilder()
-          ..limit = 2
-          ..tags = []
-          ..withUserAndGroupTags = true
-          ..conversationType = ConversationType.user)
+    conversationRequest = (ConversationsRequestBuilder()..limit = 30
+        // ..tags = []
+        // ..withUserAndGroupTags = true
+        // ..conversationType = ConversationType.user
+        )
         .build();
 
     CometChat.addMessageListener("ConversationIdListener", this);
@@ -277,14 +277,13 @@ class _ConversationListState extends State<ConversationList>
       height: 72,
       width: MediaQuery.of(context).size.width,
       child: ListTile(
-        onTap: (){
+        onTap: () {
           Navigator.push(
               context,
               MaterialPageRoute(
-                  builder: (context) =>  MessageList(
-                    conversation: conversationList[index],
-                  )));
-
+                  builder: (context) => MessageList(
+                        conversation: conversationList[index],
+                      )));
         },
         leading: CircleAvatar(
           child: Image.network(_avatar ?? '',

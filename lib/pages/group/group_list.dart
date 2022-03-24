@@ -1,8 +1,8 @@
 import 'package:cometchat/cometchat_sdk.dart';
 import 'package:flutter/material.dart';
 import 'package:sdk_tutorial/pages/conversation_list.dart';
-import 'package:sdk_tutorial/pages/create_group.dart';
-import 'package:sdk_tutorial/pages/group_functions.dart';
+import 'package:sdk_tutorial/pages/group/create_group.dart';
+import 'package:sdk_tutorial/pages/group/group_functions.dart';
 
 class CometChatGroupList extends StatefulWidget {
   const CometChatGroupList({Key? key}) : super(key: key);

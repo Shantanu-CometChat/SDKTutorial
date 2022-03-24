@@ -1,10 +1,10 @@
-
 import 'package:flutter/material.dart';
 import 'package:cometchat/cometchat_sdk.dart';
 import 'package:mime/mime.dart';
 import 'package:sdk_tutorial/Utils/loading_indicator.dart';
 import 'package:sdk_tutorial/constants.dart';
 import 'package:file_picker/file_picker.dart';
+import 'package:sdk_tutorial/pages/group/group_functions.dart';
 import 'package:sdk_tutorial/pages/messages/media_message_widget.dart';
 import 'package:sdk_tutorial/pages/messages/message_widget.dart';
 // import 'package:mime/mime.dart';
@@ -35,7 +35,7 @@ class _MessageListState extends State<MessageList> with MessageListener {
   late BannedGroupMembersRequest bannedGroupMembersRequest;
   String messageText = "";
   bool typing = false;
-  final FocusNode _focus =  FocusNode();
+  final FocusNode _focus = FocusNode();
   String conversationWithId = "";
   int activeParentMessageId = 103;
 
@@ -87,7 +87,6 @@ class _MessageListState extends State<MessageList> with MessageListener {
         );
       }
     } else if (!_focus.hasFocus) {
-
       if (widget.conversation.conversationType == CometChatReceiverType.user) {
         User tempEntity = widget.conversation.conversationWith as User;
         CometChat.endTyping(
@@ -114,14 +113,10 @@ class _MessageListState extends State<MessageList> with MessageListener {
 
   @override
   void onTextMessageReceived(TextMessage textMessage) async {
-
     _messageList.add(textMessage);
-    setState(() {
+    setState(() {});
 
-    });
-
-    CometChat.markAsDelivered(textMessage, onSuccess: (_){}, onError: (_){});
-
+    CometChat.markAsDelivered(textMessage, onSuccess: (_) {}, onError: (_) {});
   }
 
   @override
@@ -150,7 +145,6 @@ class _MessageListState extends State<MessageList> with MessageListener {
   @override
   void onMediaMessageReceived(MediaMessage mediaMessage) {
     // TODO: implement onMediaMessageReceived
-
 
     if (mounted == true) {
       _messageList.insert(0, mediaMessage);
@@ -245,7 +239,6 @@ class _MessageListState extends State<MessageList> with MessageListener {
   }
 
   markDelivered(BaseMessage message) {
-
     CometChat.markAsDelivered(message, onSuccess: (String unused) {
       debugPrint("markAsDelivered : $unused ");
       reinitiateList();
@@ -318,8 +311,7 @@ class _MessageListState extends State<MessageList> with MessageListener {
     }
     await CometChat.deleteConversation(
         conversationWith, widget.conversation.conversationType,
-        onSuccess: (onSuccess) {
-    }, onError: (error) {});
+        onSuccess: (onSuccess) {}, onError: (error) {});
   }
 
   getGroup() {
@@ -573,7 +565,7 @@ class _MessageListState extends State<MessageList> with MessageListener {
               backgroundColor: const Color(0xff131513),
               heroTag: "secondTag",
               onPressed: () {
-                FocusScope.of(context).requestFocus( FocusNode());
+                FocusScope.of(context).requestFocus(FocusNode());
 
                 late String receiverID;
                 String messagesText = messageText;
@@ -678,17 +670,17 @@ class _MessageListState extends State<MessageList> with MessageListener {
     //     passedMessage: (_messageList[index] as TextMessage),
     // );
 
-      //Text((_messageList[index] as TextMessage).text);
+    //Text((_messageList[index] as TextMessage).text);
 
     if (_messageList[index] is MediaMessage) {
       return MediaMessageWidget(
-          passedMessage: (_messageList[index] as MediaMessage),
-         );
+        passedMessage: (_messageList[index] as MediaMessage),
+      );
     }
     if (_messageList[index] is TextMessage) {
       return MessageWidget(
-            passedMessage: (_messageList[index] as TextMessage),
-        );
+        passedMessage: (_messageList[index] as TextMessage),
+      );
     }
 
     return const Text("No match");
@@ -700,6 +692,21 @@ class _MessageListState extends State<MessageList> with MessageListener {
       appBar: AppBar(
         title: Text(appTitle),
         actions: <Widget>[
+          GestureDetector(
+              onTap: () {
+                if (widget.conversation.conversationWith is Group) {
+                  Group group = widget.conversation.conversationWith as Group;
+
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => GroupFunctions(
+                                groupId: group.guid,
+                                loggedInUserId: USERID,
+                              )));
+                }
+              },
+              child: Icon(Icons.info_outline)),
           PopupMenuButton<int>(
             onSelected: (item) {
               switch (item) {

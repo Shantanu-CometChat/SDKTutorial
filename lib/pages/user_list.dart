@@ -2,8 +2,12 @@ import 'package:cometchat/cometchat_sdk.dart';
 import 'package:flutter/material.dart';
 import 'package:sdk_tutorial/pages/conversation_list.dart';
 
+enum NavigateFrom { viewMembers, addMembers, userList }
+
 class CometChatUserList extends StatefulWidget {
-  const CometChatUserList({Key? key}) : super(key: key);
+  const CometChatUserList({Key? key, required this.navigateFrom})
+      : super(key: key);
+  final NavigateFrom navigateFrom;
 
   @override
   _CometChatUserListState createState() => _CometChatUserListState();
@@ -11,6 +15,8 @@ class CometChatUserList extends StatefulWidget {
 
 class _CometChatUserListState extends State<CometChatUserList> {
   List<User> userList = [];
+  List<User> addMemberList = [];
+  Set<int> selectedIndex = {};
 
   final itemFetcher = ItemFetcher<User>();
   bool isLoading = true;
@@ -78,7 +84,18 @@ class _CometChatUserListState extends State<CometChatUserList> {
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
-          title: const Text('Users'),
+          title: widget.navigateFrom == NavigateFrom.userList
+              ? const Text('Users')
+              : const Text("Add Members"),
+          actions: [
+            if (widget.navigateFrom == NavigateFrom.addMembers &&
+                selectedIndex.isNotEmpty)
+              IconButton(
+                  onPressed: () {
+                    Navigator.pop(context, addMemberList);
+                  },
+                  icon: Icon(Icons.check))
+          ],
         ),
         body: ListView.builder(
           padding: EdgeInsets.zero,
@@ -98,10 +115,25 @@ class _CometChatUserListState extends State<CometChatUserList> {
 
             return Card(
               elevation: 8,
+              color: selectedIndex.contains(index) ? Colors.grey : Colors.white,
               child: SizedBox(
                   height: 72,
                   child: Center(
                     child: ListTile(
+                      onTap: () {
+                        if (widget.navigateFrom == NavigateFrom.addMembers &&
+                            !selectedIndex.contains(index)) {
+                          addMemberList.add(user);
+                          selectedIndex.add(index);
+                          setState(() {});
+                        } else if (widget.navigateFrom ==
+                                NavigateFrom.addMembers &&
+                            selectedIndex.contains(index)) {
+                          selectedIndex.remove(index);
+                          addMemberList.remove(user);
+                          setState(() {});
+                        }
+                      },
                       leading: CircleAvatar(
                           child: Image.network(
                         user.avatar ?? '',
