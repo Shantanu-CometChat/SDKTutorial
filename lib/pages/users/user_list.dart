@@ -21,7 +21,8 @@ class CometChatUserList extends StatefulWidget {
   _CometChatUserListState createState() => _CometChatUserListState();
 }
 
-class _CometChatUserListState extends State<CometChatUserList> {
+class _CometChatUserListState extends State<CometChatUserList>
+    with UserListener {
   List<User> userList = [];
   List<User> addMemberList = [];
   Set<int> selectedIndex = {};
@@ -33,8 +34,27 @@ class _CometChatUserListState extends State<CometChatUserList> {
   late UsersRequest usersRequest;
 
   @override
+  void onUserOnline(User user) {
+    if (userList.contains(user)) {
+      int index = userList.indexOf(user);
+      userList[index].status = CometChatUserStatus.online;
+      setState(() {});
+    }
+  }
+
+  @override
+  void onUserOffline(User user) {
+    if (userList.contains(user)) {
+      int index = userList.indexOf(user);
+      userList[index].status = CometChatUserStatus.offline;
+      setState(() {});
+    }
+  }
+
+  @override
   void initState() {
     super.initState();
+    CometChat.addUserListener("user_Listener_id", this);
     usersRequest = (UsersRequestBuilder()..limit = 30
         // ..searchKeyword = "abc"
         // ..userStatus = CometChatUserStatus.online
