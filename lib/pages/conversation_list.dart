@@ -34,7 +34,7 @@ class _ConversationListState extends State<ConversationList>
   bool hasMoreItems = true;
   late ConversationsRequest conversationRequest;
 
-  Map<int, bool> _typingIndicatorMap = {};
+  Set<int> typingIndicatorMap = {};
   @override
   void initState() {
     super.initState();
@@ -203,9 +203,9 @@ class _ConversationListState extends State<ConversationList>
             element.conversationId!.contains(typingIndicator.sender.uid))));
 
     if (isTypingStarted == true) {
-      _typingIndicatorMap[matchingIndex] = true;
+      typingIndicatorMap.add(matchingIndex);
     } else {
-      _typingIndicatorMap.remove(matchingIndex);
+      typingIndicatorMap.remove(matchingIndex);
     }
     setState(() {});
   }
@@ -315,34 +315,39 @@ class _ConversationListState extends State<ConversationList>
           width: MediaQuery.of(context).size.width,
           child: Center(
             child: ListTile(
-              onTap: () {
-                Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) => MessageList(
-                              conversation: conversationList[index],
-                            )));
-              },
-              leading: Hero(
-                tag: conversationList[index],
-                child: CircleAvatar(
-                    child: _avatar != null && _avatar.trim() != ''
-                        ? Image.network(
-                            _avatar,
-                          )
-                        : Text(_name.substring(0, 2))),
-              ),
-              trailing: unreadCount != ''
-                  ? Badge(
-                      toAnimate: false,
-                      shape: BadgeShape.circle,
-                      badgeColor: Colors.blue,
-                      badgeContent: Text(unreadCount,
-                          style: const TextStyle(color: Colors.white)),
-                    )
-                  : null,
-              title: Text(_name),
-            ),
+                onTap: () {
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => MessageList(
+                                conversation: conversationList[index],
+                              )));
+                },
+                leading: Hero(
+                  tag: conversationList[index],
+                  child: CircleAvatar(
+                      child: _avatar != null && _avatar.trim() != ''
+                          ? Image.network(
+                              _avatar,
+                            )
+                          : Text(_name.substring(0, 2))),
+                ),
+                trailing: unreadCount != ''
+                    ? Badge(
+                        toAnimate: false,
+                        shape: BadgeShape.circle,
+                        badgeColor: Colors.blue,
+                        badgeContent: Text(unreadCount,
+                            style: const TextStyle(color: Colors.white)),
+                      )
+                    : null,
+                title: Text(_name),
+                subtitle: typingIndicatorMap.contains(index)
+                    ? Text(
+                        'is typing...',
+                        style: TextStyle(color: Colors.blue),
+                      )
+                    : null),
           ),
         ),
       ),
