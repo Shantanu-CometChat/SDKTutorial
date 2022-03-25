@@ -273,25 +273,29 @@ class _ConversationListState extends State<ConversationList>
       _name = _group.name;
     }
 
-    return SizedBox(
-      height: 72,
-      width: MediaQuery.of(context).size.width,
-      child: ListTile(
-        onTap: () {
-          Navigator.push(
-              context,
-              MaterialPageRoute(
-                  builder: (context) => MessageList(
-                        conversation: conversationList[index],
-                      )));
-        },
-        leading: CircleAvatar(
-
-          child:_avatar!=null&&_avatar.trim()!='' ? Image.network(_avatar,
-          ):
-          Text(_name.substring(0,2))
+    return Card(
+      child: SizedBox(
+        height: 72,
+        width: MediaQuery.of(context).size.width,
+        child: Center(
+          child: ListTile(
+            onTap: () {
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => MessageList(
+                            conversation: conversationList[index],
+                          )));
+            },
+            leading: CircleAvatar(
+                child: _avatar != null && _avatar.trim() != ''
+                    ? Image.network(
+                        _avatar,
+                      )
+                    : Text(_name.substring(0, 2))),
+            title: Text(_name),
+          ),
         ),
-        title: Text(_name),
       ),
     );
   }
@@ -303,7 +307,6 @@ class _ConversationListState extends State<ConversationList>
         title: const Text("Chats"),
       ),
       body: Container(
-        padding: const EdgeInsets.only(left: 16.0, right: 16),
         child: isLoading
 
             //-----------loading widget -----------

@@ -9,6 +9,7 @@ import 'package:file_picker/file_picker.dart';
 import 'package:sdk_tutorial/pages/group/group_functions.dart';
 import 'package:sdk_tutorial/pages/messages/media_message_widget.dart';
 import 'package:sdk_tutorial/pages/messages/message_widget.dart';
+import '../users/user_details.dart';
 // import 'package:mime/mime.dart';
 
 class MessageList extends StatefulWidget {
@@ -168,15 +169,15 @@ class _MessageListState extends State<MessageList> with MessageListener, GroupLi
   @override
   void onMessagesDelivered(MessageReceipt messageReceipt) {
 
-      for (int i = 0; i < _messageList.length; i++) {
-        if (_messageList[i].sender!.uid == USERID &&
-            _messageList[i].id <= messageReceipt.messageId
-        && _messageList[i].deliveredAt==null
-        ) {
-          _messageList[i].deliveredAt = messageReceipt.deliveredAt;
-        }
+    for (int i = 0; i < _messageList.length; i++) {
+      if (_messageList[i].sender!.uid == USERID &&
+          _messageList[i].id <= messageReceipt.messageId
+          && _messageList[i].deliveredAt==null
+      ) {
+        _messageList[i].deliveredAt = messageReceipt.deliveredAt;
       }
-      setState(() {});
+    }
+    setState(() {});
 
   }
 
@@ -561,7 +562,7 @@ class _MessageListState extends State<MessageList> with MessageListener, GroupLi
                           ),
                           onPressed: sendMediaMessage //do something,
                       ),
-                     const SizedBox(width: 10,),
+                      const SizedBox(width: 10,),
 
                       IconButton(
                           iconSize: 24,
@@ -626,7 +627,7 @@ class _MessageListState extends State<MessageList> with MessageListener, GroupLi
     }
 
     FilePickerResult? result =
-        await FilePicker.platform.pickFiles(type: FileType.any);
+    await FilePicker.platform.pickFiles(type: FileType.any);
     //String messageType = CometChatMessageType.file;
 
     if (result != null && result.files.single.path != null) {
@@ -724,9 +725,9 @@ class _MessageListState extends State<MessageList> with MessageListener, GroupLi
                       context,
                       MaterialPageRoute(
                           builder: (context) => GroupFunctions(
-                                groupId: group.guid,
-                                loggedInUserId: USERID,
-                              )));
+                            groupId: group.guid,
+                            loggedInUserId: USERID,
+                          )));
                 }
               },
               child: Icon(Icons.info_outline)),

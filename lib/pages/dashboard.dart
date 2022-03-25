@@ -3,7 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:sdk_tutorial/constants.dart';
 import 'package:sdk_tutorial/pages/conversation_list.dart';
 import 'package:sdk_tutorial/pages/group/group_list.dart';
-import 'package:sdk_tutorial/pages/user_list.dart';
+import 'package:sdk_tutorial/pages/users/update_user.dart';
+import 'package:sdk_tutorial/pages/users/user_list.dart';
 
 class DashBoard extends StatelessWidget {
   const DashBoard({Key? key}) : super(key: key);
@@ -22,6 +23,38 @@ class DashBoard extends StatelessWidget {
       child: Scaffold(
         appBar: AppBar(
           title: const Text("SDK Tutorial"),
+          actions: [
+            PopupMenuButton<String>(
+              onSelected: (value) async {
+                if (value == 'Update Profile') {
+                  User? loggedInUser = await CometChat.getLoggedInUser();
+                  if (loggedInUser != null) {
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => UpdateUser(
+                                  user: loggedInUser,
+                                  updateLoggedInUser: true,
+                                )));
+                  }
+                } else if (value == 'Logout') {
+                  await CometChat.logout(
+                      onError: (CometChatException exception) {},
+                      onSuccess: (Map<String, Map<String, int>> message) {});
+                  Navigator.of(context).pop();
+                  USERID = "";
+                }
+              },
+              itemBuilder: (BuildContext context) {
+                return {'Update Profile', 'Logout'}.map((String choice) {
+                  return PopupMenuItem<String>(
+                    value: choice,
+                    child: Text(choice),
+                  );
+                }).toList();
+              },
+            )
+          ],
         ),
         body: SingleChildScrollView(
           child: Column(
