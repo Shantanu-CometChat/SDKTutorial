@@ -79,7 +79,7 @@ class _MessageFunctionsState extends State<MessageFunctions> {
                       child: ListTile(
                         onTap: deleteMessage,
                         title: const Text(
-                          "Delete This Group",
+                          "Delete Message",
                           style: TextStyle(color: Colors.red),
                         ),
                       )),

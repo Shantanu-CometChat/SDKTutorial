@@ -1,5 +1,7 @@
 import 'package:cometchat/cometchat_sdk.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
+import 'package:sdk_tutorial/constants.dart';
 
 class MessageReceipts extends StatelessWidget {
   final BaseMessage passedMessage;
@@ -12,35 +14,43 @@ class MessageReceipts extends StatelessWidget {
     Widget receiptIcon  = sentIcon();
     if(passedMessage.deliveredAt!=null)receiptIcon = deliveredIcon();
     if(passedMessage.readAt!=null)receiptIcon = readIcon();
-    return SizedBox(
-      child:receiptIcon ,
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Text(receiptFormatter.format(passedMessage.sentAt!),
+          style: TextStyle(color: const Color(0xff141414).withOpacity(0.46)  ),
+        ),
+        receiptIcon] ,
 
     );
   }
 
   Widget readIcon(){
-    return Image.asset(
-      "assets/read_icon.png",
-      height: 14,
-      width: 14,
+    return SvgPicture.asset(
+      "assets/Message Delivered.svg",
+      color: Colors.blue,
+      width: 16,
+      height: 16,
     );
   }
 
 
   Widget deliveredIcon(){
-    return Image.asset(
-      "assets/delivered_icon.png",
-      height: 14,
-      width: 14,
+    return SvgPicture.asset(
+      "assets/Message Delivered.svg",
+      width: 16,
+      height: 16,
+      color: const Color(0xff141414).withOpacity(0.46),
     );
   }
 
 
   Widget sentIcon(){
-    return  Image.asset(
-      "assets/sent_icon.png",
-      height: 14,
-      width: 14,
+    return SvgPicture.asset(
+      "assets/Message Sent.svg",
+      width: 16,
+      height: 16,
+      color: const Color(0xff141414).withOpacity(0.46),
     );
   }
 
