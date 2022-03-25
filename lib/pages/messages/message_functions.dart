@@ -3,16 +3,14 @@ import 'package:flutter/material.dart';
 import 'package:sdk_tutorial/constants.dart';
 import 'package:sdk_tutorial/pages/group/group_members.dart';
 import 'package:sdk_tutorial/pages/group/update_group.dart';
-import 'package:sdk_tutorial/pages/user_list.dart';
+import 'package:sdk_tutorial/pages/users/user_list.dart';
 
 class MessageFunctions extends StatefulWidget {
   const MessageFunctions(
       {Key? key,
-        required this.passedMessage,
-        required this.sentByMe,
-        required this.deleteMessage
-
-      })
+      required this.passedMessage,
+      required this.sentByMe,
+      required this.deleteMessage})
       : super(key: key);
 
   final BaseMessage passedMessage;
@@ -24,24 +22,18 @@ class MessageFunctions extends StatefulWidget {
 }
 
 class _MessageFunctionsState extends State<MessageFunctions> {
-
-
   late String name;
   late Widget title;
-
-
 
   @override
   void initState() {
     super.initState();
 
-
-    if(  widget.passedMessage.type==CometChatMessageType.text){
+    if (widget.passedMessage.type == CometChatMessageType.text) {
       title = Text((widget.passedMessage as TextMessage).text);
-    }else{
-      title= Text(widget.passedMessage.type);
+    } else {
+      title = Text(widget.passedMessage.type);
     }
-
   }
 
   deleteMessage() async {
@@ -49,12 +41,9 @@ class _MessageFunctionsState extends State<MessageFunctions> {
     Navigator.of(context).pop();
   }
 
-
-
-
   @override
   Widget build(BuildContext context) {
-    String? iconUrl  = widget.passedMessage.sender!.avatar;
+    String? iconUrl = widget.passedMessage.sender!.avatar;
     return Scaffold(
       appBar: AppBar(
         title: const Text("Message Details"),
@@ -69,18 +58,17 @@ class _MessageFunctionsState extends State<MessageFunctions> {
                     child: Center(
                       child: ListTile(
                         leading: CircleAvatar(
-                            child:
-                            iconUrl!=null&& iconUrl.trim()!=''?
-                            Image.network(
-                              iconUrl,
-                            ):Center(
-                              child: Text(widget.passedMessage.sender!.name),
-                            )
-
-                        ),
-                        title: title ,
-                        subtitle: Text(
-                            "sent At :${widget.passedMessage.sentAt} "),
+                            child: iconUrl != null && iconUrl.trim() != ''
+                                ? Image.network(
+                                    iconUrl,
+                                  )
+                                : Center(
+                                    child:
+                                        Text(widget.passedMessage.sender!.name),
+                                  )),
+                        title: title,
+                        subtitle:
+                            Text("sent At :${widget.passedMessage.sentAt} "),
                       ),
                     )),
               ),

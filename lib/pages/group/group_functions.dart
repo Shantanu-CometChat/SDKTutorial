@@ -2,7 +2,7 @@ import 'package:cometchat/cometchat_sdk.dart';
 import 'package:flutter/material.dart';
 import 'package:sdk_tutorial/pages/group/group_members.dart';
 import 'package:sdk_tutorial/pages/group/update_group.dart';
-import 'package:sdk_tutorial/pages/user_list.dart';
+import 'package:sdk_tutorial/pages/users/user_list.dart';
 
 class GroupFunctions extends StatefulWidget {
   const GroupFunctions(
@@ -40,8 +40,6 @@ class _GroupFunctionsState extends State<GroupFunctions> {
     isGroupOwner = group.owner == widget.loggedInUserId;
     isLoading = false;
     setState(() {});
-    print("Group owner ${group.owner}");
-    print(widget.loggedInUserId);
   }
 
   leaveGroup() async {
@@ -71,11 +69,11 @@ class _GroupFunctionsState extends State<GroupFunctions> {
   }
 
   transferOwnerShipOfGroup() async {
-    String UID = "superhero1"; //new group owner uid
+    String uid = "superhero1"; //new group owner uid
 
     await CometChat.transferGroupOwnership(
         guid: widget.groupId,
-        uid: UID,
+        uid: uid,
         onSuccess: (String message) {
           debugPrint("Owner Transferred  Successfully : $message");
         },
@@ -182,14 +180,15 @@ class _GroupFunctionsState extends State<GroupFunctions> {
                                 List<User> addMemberList = await Navigator.push(
                                     context,
                                     MaterialPageRoute(
-                                        builder: (context) => CometChatUserList(
+                                        builder: (context) =>
+                                            const CometChatUserList(
                                               navigateFrom:
                                                   NavigateFrom.addMembers,
                                             )));
                                 addMembers(addMemberList);
                               },
-                              title: Text("Add Members"),
-                              trailing: Icon(Icons.arrow_forward_ios),
+                              title: const Text("Add Members"),
+                              trailing: const Icon(Icons.arrow_forward_ios),
                             )),
                       ),
                     if (group.type == CometChatGroupType.password &&
@@ -219,7 +218,7 @@ class _GroupFunctionsState extends State<GroupFunctions> {
                         child: SizedBox(
                             height: 50,
                             child: ListTile(
-                              trailing: Icon(Icons.arrow_forward_ios),
+                              trailing: const Icon(Icons.arrow_forward_ios),
                               onTap: () {
                                 Navigator.push(
                                     context,
