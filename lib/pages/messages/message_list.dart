@@ -36,6 +36,8 @@ class _MessageListState extends State<MessageList>
   bool _hasMore = true;
   MessagesRequest? messageRequest;
   String appTitle = "";
+  String appSubtitle = "";
+  Widget appBarAvatar = Container();
   final formKey = GlobalKey<FormState>();
 
   late BannedGroupMembersRequest bannedGroupMembersRequest;
@@ -55,7 +57,7 @@ class _MessageListState extends State<MessageList>
     }
 
     _focus.addListener(_onFocusChange);
-
+    String? _avatar;
     CometChat.addMessageListener("listenerId", this);
     if (widget.conversation.conversationType == CometChatReceiverType.user) {
       messageRequest = (MessagesRequestBuilder()
@@ -64,6 +66,8 @@ class _MessageListState extends State<MessageList>
             ..hideDeleted = true)
           .build();
       appTitle = (widget.conversation.conversationWith as User).name;
+      _avatar = (widget.conversation.conversationWith as User).avatar;
+      appSubtitle = (widget.conversation.conversationWith as User).status ?? '';
     } else {
       messageRequest = (MessagesRequestBuilder()
             ..guid = (widget.conversation.conversationWith as Group).guid
@@ -71,7 +75,19 @@ class _MessageListState extends State<MessageList>
             ..hideDeleted = true)
           .build();
       appTitle = (widget.conversation.conversationWith as Group).name;
+      _avatar = (widget.conversation.conversationWith as Group).icon;
+      appSubtitle =
+          "${(widget.conversation.conversationWith as Group).membersCount.toString()} members";
     }
+    appBarAvatar = Hero(
+      tag: widget.conversation,
+      child: CircleAvatar(
+          child: _avatar != null && _avatar.trim() != ''
+              ? Image.network(
+                  _avatar,
+                )
+              : Text(appTitle.substring(0, 2))),
+    );
 
     super.initState();
     _isLoading = true;
@@ -666,10 +682,25 @@ class _MessageListState extends State<MessageList>
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(appTitle),
+        titleSpacing: 0,
+        title: ListTile(
+          contentPadding: EdgeInsets.all(0),
+          leading: appBarAvatar,
+          subtitle: Text(
+            appSubtitle,
+            style: TextStyle(color: Colors.white),
+          ),
+          title: Text(
+            appTitle,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: TextStyle(
+                color: Colors.white, fontSize: 17, fontWeight: FontWeight.w500),
+          ),
+        ),
         actions: <Widget>[
-          GestureDetector(
-              onTap: () {
+          IconButton(
+              onPressed: () {
                 if (widget.conversation.conversationWith is Group) {
                   Group group = widget.conversation.conversationWith as Group;
 
@@ -691,7 +722,7 @@ class _MessageListState extends State<MessageList>
                               )));
                 }
               },
-              child: Icon(Icons.info_outline)),
+              icon: Icon(Icons.info_outline)),
           PopupMenuButton<int>(
             onSelected: (item) {
               switch (item) {
