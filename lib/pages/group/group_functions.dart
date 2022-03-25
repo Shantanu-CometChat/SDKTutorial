@@ -152,8 +152,8 @@ class _GroupFunctionsState extends State<GroupFunctions> {
                                             groupId: group.guid,
                                           )));
                             },
-                            title: Text("View Members"),
-                            trailing: Icon(Icons.arrow_forward_ios),
+                            title: const Text("View Members"),
+                            trailing: const Icon(Icons.arrow_forward_ios),
                           )),
                     ),
                     Card(
@@ -170,7 +170,7 @@ class _GroupFunctionsState extends State<GroupFunctions> {
                                           )));
                             },
                             title: const Text("View Banned Members"),
-                            trailing: Icon(Icons.arrow_forward_ios),
+                            trailing: const Icon(Icons.arrow_forward_ios),
                           )),
                     ),
                     if (group.owner == widget.loggedInUserId)
