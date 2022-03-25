@@ -1,3 +1,5 @@
+import 'package:intl/intl.dart';
+
 class CometChatAuthConstants {
   static const String appId = "20583267d95423bd";
   static const String authKey = "9e1248adcc48214f6383c3518818bdc123f2da9e";
@@ -5,3 +7,4 @@ class CometChatAuthConstants {
 }
 
 String USERID = "";
+final DateFormat receiptFormatter = DateFormat('hh:mm a');

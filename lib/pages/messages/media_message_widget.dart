@@ -46,6 +46,8 @@ class _MediaMessageState extends State<MediaMessageWidget> {
     } else if (widget.passedMessage is c.Action) {
       text = (widget.passedMessage as c.Action).message;
     }
+
+    Color background = sentByMe==true?const Color(0xff3399FF).withOpacity(0.92) : const Color(0xffF8F8F8).withOpacity(0.92);
     return Padding(
         padding: const EdgeInsets.all(8.0),
         child: Column(
@@ -54,7 +56,7 @@ class _MediaMessageState extends State<MediaMessageWidget> {
           children: [
             if (widget.passedMessage.type == CometChatMessageType.image)
               Card(
-                color: sentByMe==true?Colors.green: Colors.amberAccent,
+                color: background,
                 child: Column(
                   children: [
                    SizedBox(
@@ -66,11 +68,11 @@ class _MediaMessageState extends State<MediaMessageWidget> {
                 ),
               ),
             if (widget.passedMessage.type == CometChatMessageType.video)
-              FileCard(passedMessage: widget.passedMessage,),
+              FileCard(passedMessage: widget.passedMessage,backgroundColor: background,),
             if (widget.passedMessage.type == CometChatMessageType.file)
-              FileCard(passedMessage: widget.passedMessage,),
+              FileCard(passedMessage: widget.passedMessage,backgroundColor: background,),
             if (widget.passedMessage.type == CometChatMessageType.audio)
-              FileCard(passedMessage: widget.passedMessage,),
+              FileCard(passedMessage: widget.passedMessage,backgroundColor: background,),
             if (sentByMe == true)
             MessageReceipts(passedMessage: widget.passedMessage)
 
@@ -85,7 +87,10 @@ class _MediaMessageState extends State<MediaMessageWidget> {
 
 class FileCard extends StatefulWidget {
   final MediaMessage passedMessage;
-  const FileCard({Key? key, required this.passedMessage}) : super(key: key);
+  final Color backgroundColor;
+  const FileCard({Key? key, required this.passedMessage,
+  required this.backgroundColor
+  }) : super(key: key);
 
   @override
   _FileCardState createState() => _FileCardState();
@@ -98,7 +103,7 @@ class _FileCardState extends State<FileCard> {
   Widget build(BuildContext context) {
 
       return Card(
-        color:Colors.green,
+        color: widget.backgroundColor,
       child: Column(
         children: [
           SizedBox(
@@ -122,7 +127,7 @@ class _FileCardState extends State<FileCard> {
                 _isDownloading = false;
               });
 
-              //OpenFile.open(ab.path);
+              OpenFile.open(ab.path);
             },
             child: Row(
               mainAxisSize: MainAxisSize.min,

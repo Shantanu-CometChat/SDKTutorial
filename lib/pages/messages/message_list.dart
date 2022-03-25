@@ -1,6 +1,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:cometchat/cometchat_sdk.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:mime/mime.dart';
 import 'package:sdk_tutorial/Utils/loading_indicator.dart';
 import 'package:sdk_tutorial/constants.dart';
@@ -22,7 +23,7 @@ class MessageList extends StatefulWidget {
   _MessageListState createState() => _MessageListState();
 }
 
-class _MessageListState extends State<MessageList> with MessageListener {
+class _MessageListState extends State<MessageList> with MessageListener, GroupListener, UserListener {
   final List<BaseMessage> _messageList = <BaseMessage>[];
   final _itemFetcher = ItemFetcher<BaseMessage>();
   final textKey = const ValueKey<int>(1);
@@ -57,13 +58,18 @@ class _MessageListState extends State<MessageList> with MessageListener {
     if (widget.conversation.conversationType == CometChatReceiverType.user) {
       messageRequest = (MessagesRequestBuilder()
         ..uid = (widget.conversation.conversationWith as User).uid
-        ..limit = limit)
+        ..limit = limit
+        ..hideDeleted  = true
+      )
+
           .build();
       appTitle = (widget.conversation.conversationWith as User).name;
     } else {
       messageRequest = (MessagesRequestBuilder()
         ..guid = (widget.conversation.conversationWith as Group).guid
-        ..limit = limit)
+        ..limit = limit
+        ..hideDeleted  = true
+      )
           .build();
       appTitle = (widget.conversation.conversationWith as Group).name;
     }
@@ -235,6 +241,10 @@ class _MessageListState extends State<MessageList> with MessageListener {
       } else {
         setState(() {
           _isLoading = false;
+          for(var item in fetchedList){
+            print(" Before Adding to list ${item.id} ${item.type} ${item.category} ${(item is TextMessage)?"start${item.text}end":"sss" }");
+
+          }
           _messageList.addAll(fetchedList.reversed);
         });
       }
@@ -488,196 +498,102 @@ class _MessageListState extends State<MessageList> with MessageListener {
     );
   }
 
-  Widget getMessageComposer() {
-    return Form(
-      key: formKey,
-      child: Row(
-        children: [
-          GestureDetector(
-            onTap: () async {},
-            child: CircleAvatar(
-              backgroundColor: Colors.grey.withOpacity(0.5),
-              radius: 20,
-              child: const Icon(Icons.add),
-            ),
+
+  Widget getMessageComposer(){
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: Container(
+
+        decoration:  BoxDecoration(
+          color: const Color(0xff141414).withOpacity(0.06),
+          borderRadius: const BorderRadius.all(
+              Radius.circular(8.0) //                 <--- border radius here
           ),
-          Expanded(
-              child: Stack(
-                children: [
-                  TextFormField(
-                    focusNode: _focus,
-                    controller: TextEditingController(text: messageText),
-                    onChanged: (val) {
-                      messageText = val;
-                    },
+        ),
+        child: Column(
+          children: [
+
+            Row(
+              children: [
+                Expanded(child: TextFormField(
+                  cursorColor: const Color(0xff141414).withOpacity(0.58),
+                  focusNode: _focus,
+                  controller: TextEditingController(text: messageText),
+                  onChanged: (val) {
+                    messageText = val;
+                  },
+
+                  decoration: const  InputDecoration(
+                    hintText: "Message",
+                    focusedBorder: InputBorder.none,
+                    enabledBorder: InputBorder.none,
                   ),
+                ))
+              ],
+            ),
+            const   Divider(
+                height: 1
+            ),
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Row(
+                mainAxisSize: MainAxisSize.max,
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  SvgPicture.asset(
+                    "assets/PlusCircle.svg",
+                    width: 24,
+                    height: 24,
+                  ),
+
+                  Row(
+                    mainAxisSize: MainAxisSize.min,
+
+                    children: [
+                      IconButton(
+                          iconSize: 24,
+                          padding: const EdgeInsets.all(0),
+                          constraints: const BoxConstraints(),
+                          icon: SvgPicture.asset(
+                            "assets/Sticker.svg",
+                            width: 24,
+                            height: 24,
+                          ),
+                          onPressed: sendMediaMessage //do something,
+                      ),
+                     const SizedBox(width: 10,),
+
+                      IconButton(
+                          iconSize: 24,
+                          padding: const EdgeInsets.all(0),
+                          constraints: const BoxConstraints(),
+                          icon: SvgPicture.asset(
+                            "assets/Send.svg",
+                            width: 24,
+                            height: 24,
+                          ),
+                          onPressed: (){
+                            FocusScope.of(context).requestFocus( FocusNode());
+                            sendTextMessage();
+
+                          } //do something,
+                      ),
+
+                    ],
+                  )
                 ],
-              )),
-          FloatingActionButton(
-              child: const Icon(Icons.attachment),
-              backgroundColor: const Color(0xff131513),
-              heroTag: "firstTag",
-              onPressed: () async {
-                late String receiverID;
-                String messageType = CometChatMessageType.image;
-                String receiverType = widget.conversation.conversationType;
-                String filePath = "";
-                if (widget.conversation.conversationType == "user") {
-                  receiverID =
-                      (widget.conversation.conversationWith as User).uid;
-                } else {
-                  receiverID =
-                      (widget.conversation.conversationWith as Group).guid;
-                }
 
-                FilePickerResult? result =
-                await FilePicker.platform.pickFiles(type: FileType.image);
-                //String messageType = CometChatMessageType.file;
 
-                if (result != null && result.files.single.path != null) {
-                  filePath = result.files.single.path!;
 
-                  String? fileExtension =
-                  lookupMimeType(result.files.single.path!);
-                  if (fileExtension != null) {
-                    if (fileExtension.startsWith("audio")) {
-                      messageType = CometChatMessageType.audio;
-                    } else if (fileExtension.startsWith("image")) {
-                      messageType = CometChatMessageType.image;
-                    } else if (fileExtension.startsWith("video")) {
-                      messageType = CometChatMessageType.video;
-                    } else if (fileExtension.startsWith("application")) {
-                      messageType = CometChatMessageType.file;
-                    } else {
-                      messageType = CometChatMessageType.file;
-                    }
-                  }
+              ),
+            )
+          ],
 
-                  MediaMessage mediaMessage = MediaMessage(
-                      receiverType: receiverType,
-                      type: messageType,
-                      receiverUid: receiverID,
-                      file: filePath);
-
-                  await CometChat.sendMediaMessage(mediaMessage,
-                      onSuccess: (MediaMessage message) {
-                        debugPrint(
-                            "Media message sent successfully: ${mediaMessage.metadata}");
-                        _messageList.insert(0, message);
-                        setState(() {});
-                      }, onError: (e) {
-                        debugPrint(
-                            "Media message sending failed with exception: ${e.message}");
-                      });
-                } else {
-                  // User canceled the picker
-                }
-              }),
-          FloatingActionButton(
-              child: const Icon(Icons.send),
-              backgroundColor: const Color(0xff131513),
-              heroTag: "secondTag",
-              onPressed: () {
-                FocusScope.of(context).requestFocus( FocusNode());
-
-                late String receiverID;
-                String messagesText = messageText;
-                String receiverType = CometChatConversationType.user;
-                String type = CometChatMessageType.text;
-
-                if (widget.conversation.conversationType == "user") {
-                  receiverID =
-                      (widget.conversation.conversationWith as User).uid;
-                } else {
-                  receiverID =
-                      (widget.conversation.conversationWith as Group).guid;
-                }
-                TextMessage textMessage = TextMessage(
-                    text: messagesText,
-                    receiverUid: receiverID,
-                    receiverType: receiverType,
-                    type: type);
-
-                textMessage.id = 46;
-
-                CometChat.sendMessage(textMessage,
-                    onSuccess: (TextMessage message) {
-                      debugPrint("Message sent successfully:  ${message.text}");
-
-                      setState(() {
-                        _messageList.insert(0, message);
-                        messageText = "";
-                      });
-                    }, onError: (CometChatException e) {
-                      debugPrint(
-                          "Message sending failed with exception:  ${e.message}");
-                    });
-              }),
-          FloatingActionButton(
-              child: const Icon(Icons.link),
-              backgroundColor: const Color(0xff131513),
-              onPressed: () async {
-                late String receiverID;
-                String messageType = CometChatMessageType.image;
-                String receiverType = widget.conversation.conversationType;
-                if (widget.conversation.conversationType == "user") {
-                  receiverID =
-                      (widget.conversation.conversationWith as User).uid;
-                } else {
-                  receiverID =
-                      (widget.conversation.conversationWith as Group).guid;
-                }
-                messageType = CometChatMessageType.image;
-
-                MediaMessage mediaMessage = MediaMessage(
-                    receiverType: receiverType,
-                    type: messageType,
-                    receiverUid: receiverID,
-                    file: null);
-
-                String fileUrl =
-                    "https://pngimg.com/uploads/mario/mario_PNG125.png";
-                String fileName = "test";
-                String fileExtension = "png";
-                String fileMimeType = "image/png";
-
-                Attachment attach = Attachment(
-                    fileUrl, fileName, fileExtension, fileMimeType, null);
-                mediaMessage.attachment = attach;
-
-                await CometChat.sendMediaMessage(mediaMessage,
-                    onSuccess: (MediaMessage message) {
-                      debugPrint(
-                          "Media message sent successfully: ${mediaMessage.metadata}");
-                      _messageList.insert(0, message);
-                      setState(() {});
-                    }, onError: (CometChatException e) {
-                      debugPrint(
-                          "Media message sending failed with exception: ${e.message}");
-                    });
-
-                String receiverId = "superhero2";
-                Map<String, String> data = {};
-                data["LIVE_REACTION"] = "heart";
-
-                TransientMessage transientMessage = TransientMessage(
-                  receiverId: receiverId,
-                  receiverType: CometChatReceiverType.user,
-                  data: data,
-                );
-
-                CometChat.sendTransientMessage(transientMessage, onSuccess: () {
-                  debugPrint("Transient Message Sent");
-                }, onError: (CometChatException e) {
-                  debugPrint(
-                      "Transient message sending failed with exception: ${e.message}");
-                });
-              })
-        ],
+        ),
       ),
     );
-  }
 
+  }
   Widget getMessageWidget(int index) {
 
     if (_messageList[index] is MediaMessage) {
@@ -694,6 +610,104 @@ class _MessageListState extends State<MessageList> with MessageListener {
 
     return const Text("No match");
   }
+
+
+  sendMediaMessage() async {
+    late String receiverID;
+    String messageType = CometChatMessageType.image;
+    String receiverType = widget.conversation.conversationType;
+    String filePath = "";
+    if (widget.conversation.conversationType == "user") {
+      receiverID =
+          (widget.conversation.conversationWith as User).uid;
+    } else {
+      receiverID =
+          (widget.conversation.conversationWith as Group).guid;
+    }
+
+    FilePickerResult? result =
+        await FilePicker.platform.pickFiles(type: FileType.any);
+    //String messageType = CometChatMessageType.file;
+
+    if (result != null && result.files.single.path != null) {
+      filePath = result.files.single.path!;
+
+      String? fileExtension =
+      lookupMimeType(result.files.single.path!);
+      if (fileExtension != null) {
+        if (fileExtension.startsWith("audio")) {
+          messageType = CometChatMessageType.audio;
+        } else if (fileExtension.startsWith("image")) {
+          messageType = CometChatMessageType.image;
+        } else if (fileExtension.startsWith("video")) {
+          messageType = CometChatMessageType.video;
+        } else if (fileExtension.startsWith("application")) {
+          messageType = CometChatMessageType.file;
+        } else {
+          messageType = CometChatMessageType.file;
+        }
+      }
+
+      MediaMessage mediaMessage = MediaMessage(
+          receiverType: receiverType,
+          type: messageType,
+          receiverUid: receiverID,
+          file: filePath);
+
+      await CometChat.sendMediaMessage(mediaMessage,
+          onSuccess: (MediaMessage message) {
+            debugPrint(
+                "Media message sent successfully: ${mediaMessage.metadata}");
+            _messageList.insert(0, message);
+            setState(() {});
+          }, onError: (e) {
+            debugPrint(
+                "Media message sending failed with exception: ${e.message}");
+          });
+    } else {
+      // User canceled the picker
+    }
+
+  }
+
+  sendTextMessage(){
+    late String receiverID;
+    String messagesText = messageText;
+    String receiverType = CometChatConversationType.user;
+    String type = CometChatMessageType.text;
+
+    if (widget.conversation.conversationType == "user") {
+      receiverID =
+          (widget.conversation.conversationWith as User).uid;
+    } else {
+      receiverID =
+          (widget.conversation.conversationWith as Group).guid;
+    }
+    TextMessage textMessage = TextMessage(
+        text: messagesText,
+        receiverUid: receiverID,
+        receiverType: receiverType,
+        type: type);
+
+    textMessage.id = 46;
+
+    CometChat.sendMessage(textMessage,
+        onSuccess: (TextMessage message) {
+          debugPrint("Message sent successfully:  ${message.text}");
+
+          setState(() {
+            _messageList.insert(0, message);
+            messageText = "";
+          });
+        }, onError: (CometChatException e) {
+          debugPrint(
+              "Message sending failed with exception:  ${e.message}");
+        });
+
+  }
+
+
+
 
   @override
   Widget build(BuildContext context) {

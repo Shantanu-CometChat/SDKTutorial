@@ -29,12 +29,14 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  cometchat: ^3.0.0-beta.2
+  cometchat: ^3.0.0-beta.3
   file_picker:
   image_picker:
   mime: ^1.0.1
   path_provider: ^2.0.9
   open_file: ^3.2.1
+  flutter_svg: ^1.0.3
+  intl: ^0.17.0
 
 
   # The following adds the Cupertino Icons font to your application.
@@ -73,6 +75,11 @@ flutter:
     - assets/read_icon.png
     - assets/sent_icon.png
     - assets/delivered_icon.png
+    - assets/PlusCircle.svg
+    - assets/Send.svg
+    - assets/Sticker.svg
+    - assets/Message Sent.svg
+    - assets/Message Delivered.svg
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware.

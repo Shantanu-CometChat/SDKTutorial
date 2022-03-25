@@ -39,6 +39,7 @@ class _MessageWidgetState extends State<MessageWidget> {
     }
 
     text =widget.passedMessage.text;
+    Color background = sentByMe==true?const Color(0xff3399FF).withOpacity(0.92) : const Color(0xffF8F8F8).withOpacity(0.92);
 
     return Padding(
         padding: const EdgeInsets.all(8.0),
@@ -56,10 +57,12 @@ class _MessageWidgetState extends State<MessageWidget> {
                             passedMessage: widget.passedMessage, sentByMe: sentByMe, deleteMessage: widget.deleteFunction)));
               },
               child: Card(
-                color: Colors.green,
+                color: background,
                 child: Padding(
                   padding: const EdgeInsets.all(8.0),
-                  child: Text(text ?? ""),
+                  child: Text(text ?? "",
+                  style: TextStyle(color: const Color(0xffFFFFFF).withOpacity(0.92),),
+                  ),
                 ),
               ),
             ),
