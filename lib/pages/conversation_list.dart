@@ -286,16 +286,10 @@ class _ConversationListState extends State<ConversationList>
                       )));
         },
         leading: CircleAvatar(
-          child: Image.network(_avatar ?? '',
-              errorBuilder: (context, object, stackTrace) {
-            return Center(
-              child: Text(_name.substring(0, 2),
-                  style: const TextStyle(
-                      fontSize: 17.0,
-                      color: Color(0xffFFFFFF),
-                      fontWeight: FontWeight.w500)),
-            );
-          }),
+
+          child:_avatar!=null&&_avatar.trim()!='' ? Image.network(_avatar,
+          ):
+          Text(_name.substring(0,2))
         ),
         title: Text(_name),
       ),

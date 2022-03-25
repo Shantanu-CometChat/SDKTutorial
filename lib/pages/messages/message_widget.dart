@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:cometchat/cometchat_sdk.dart';
 import 'package:sdk_tutorial/constants.dart';
+import 'package:sdk_tutorial/pages/messages/message_functions.dart';
 import 'package:sdk_tutorial/pages/messages/message_options.dart';
 import 'package:sdk_tutorial/pages/messages/message_receipts.dart';
 
@@ -48,9 +49,11 @@ class _MessageWidgetState extends State<MessageWidget> {
             GestureDetector(
               
               onTap: () async {
-                showMessageOptions(
-                  context, widget.deleteFunction, widget.passedMessage
-                );
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) =>  MessageFunctions(
+                            passedMessage: widget.passedMessage, sentByMe: sentByMe, deleteMessage: widget.deleteFunction)));
               },
               child: Card(
                 color: Colors.green,

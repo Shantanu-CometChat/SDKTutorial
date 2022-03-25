@@ -67,18 +67,6 @@ class _MediaMessageState extends State<MediaMessageWidget> {
               ),
             if (widget.passedMessage.type == CometChatMessageType.video)
               FileCard(passedMessage: widget.passedMessage,),
-
-              // ListTile(
-              //   onTap: () async {
-              //     print("URL is ${widget.passedMessage.attachment!.fileUrl}");
-              //     File ab = await _downloadFile(
-              //         widget.passedMessage.attachment!.fileUrl,
-              //         widget.passedMessage.attachment!.fileName);
-              //     print(ab.path);
-              //     OpenFile.open(ab.path);
-              //   },
-              //   title: Text( "no Caption Video"),
-              // ),
             if (widget.passedMessage.type == CometChatMessageType.file)
               FileCard(passedMessage: widget.passedMessage,),
             if (widget.passedMessage.type == CometChatMessageType.audio)

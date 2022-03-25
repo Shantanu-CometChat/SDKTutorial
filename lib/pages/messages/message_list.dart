@@ -5,6 +5,7 @@ import 'package:mime/mime.dart';
 import 'package:sdk_tutorial/Utils/loading_indicator.dart';
 import 'package:sdk_tutorial/constants.dart';
 import 'package:file_picker/file_picker.dart';
+import 'package:sdk_tutorial/pages/group/group_functions.dart';
 import 'package:sdk_tutorial/pages/messages/media_message_widget.dart';
 import 'package:sdk_tutorial/pages/messages/message_widget.dart';
 // import 'package:mime/mime.dart';
@@ -160,24 +161,30 @@ class _MessageListState extends State<MessageList> with MessageListener {
 
   @override
   void onMessagesDelivered(MessageReceipt messageReceipt) {
-    if (mounted == true) {
+
       for (int i = 0; i < _messageList.length; i++) {
         if (_messageList[i].sender!.uid == USERID &&
-            _messageList[i].id <= messageReceipt.messageId) {
-          _messageList[i].deliveredAt = DateTime.now();
-          _messageList[i].readAt = DateTime.now();
+            _messageList[i].id <= messageReceipt.messageId
+        && _messageList[i].deliveredAt==null
+        ) {
+          _messageList[i].deliveredAt = messageReceipt.deliveredAt;
         }
       }
       setState(() {});
-    }
+
   }
 
   @override
   void onMessagesRead(MessageReceipt messageReceipt) {
-    int matchingIndex = _messageList.indexWhere(
-            (element) => (element.id == messageReceipt.messageId));
-
-    _messageList[matchingIndex].readAt =  messageReceipt.readAt;
+    for (int i = 0; i < _messageList.length; i++) {
+      if (_messageList[i].sender!.uid == USERID &&
+          _messageList[i].id <= messageReceipt.messageId
+          && _messageList[i].readAt==null
+      ) {
+        _messageList[i].readAt = messageReceipt.readAt;
+      }
+    }
+    setState(() {});
 
   }
 
@@ -672,11 +679,6 @@ class _MessageListState extends State<MessageList> with MessageListener {
   }
 
   Widget getMessageWidget(int index) {
-    // return MessageWidget(
-    //     passedMessage: (_messageList[index] as TextMessage),
-    // );
-
-    //Text((_messageList[index] as TextMessage).text);
 
     if (_messageList[index] is MediaMessage) {
       return MediaMessageWidget(
@@ -806,6 +808,8 @@ class _MessageListState extends State<MessageList> with MessageListener {
     );
   }
 }
+
+
 
 class ItemFetcher<T> {
   Future<List<T>> fetch(dynamic request) async {
