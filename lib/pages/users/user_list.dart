@@ -302,35 +302,35 @@ class _CometChatUserListState extends State<CometChatUserList>
                                       setState(() {});
                                     } else if (widget.navigateFrom ==
                                         NavigateFrom.userList) {
-                                      // CometChat.getConversation(
-                                      //     user.uid, ConversationType.user,
-                                      //     onSuccess:
-                                      //         (Conversation conversation) {
-                                      //   Navigator.push(
-                                      //       context,
-                                      //       MaterialPageRoute(
-                                      //           builder: (context) =>
-                                      //               MessageList(
-                                      //                 conversation:
-                                      //                     conversation,
-                                      //               )));
-                                      // }, onError: (CometChatException e) {
-                                      //   Conversation createConversation =
-                                      //       Conversation(
-                                      //     conversationType:
-                                      //         ConversationType.user,
-                                      //     conversationWith: user,
-                                      //   );
-                                      //
-                                      //   Navigator.push(
-                                      //       context,
-                                      //       MaterialPageRoute(
-                                      //           builder: (context) =>
-                                      //               MessageList(
-                                      //                 conversation:
-                                      //                     createConversation,
-                                      //               )));
-                                      // });
+                                      CometChat.getConversation(
+                                          user.uid, ConversationType.user,
+                                          onSuccess:
+                                              (Conversation conversation) {
+                                        Navigator.push(
+                                            context,
+                                            MaterialPageRoute(
+                                                builder: (context) =>
+                                                    MessageList(
+                                                      conversation:
+                                                          conversation,
+                                                    )));
+                                      }, onError: (CometChatException e) {
+                                        Conversation createConversation =
+                                            Conversation(
+                                          conversationType:
+                                              ConversationType.user,
+                                          conversationWith: user,
+                                        );
+
+                                        Navigator.push(
+                                            context,
+                                            MaterialPageRoute(
+                                                builder: (context) =>
+                                                    MessageList(
+                                                      conversation:
+                                                          createConversation,
+                                                    )));
+                                      });
                                     }
                                   },
                                   leading: CircleAvatar(
