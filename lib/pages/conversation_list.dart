@@ -4,29 +4,7 @@ import 'package:sdk_tutorial/Utils/slide_menu.dart';
 import 'package:sdk_tutorial/pages/messages/message_list.dart';
 import 'package:badges/badges.dart';
 
-//----------- fetch items like conversation list,user list ,etc.-----------
-class ItemFetcher<T> {
-  Future<List<T>> fetchNext(dynamic request) async {
-    final list = <T>[];
-
-    List<T> res = await request.fetchNext(
-        onSuccess: (List<T> conversations) {},
-        onError: (CometChatException e) {});
-
-    list.addAll(res);
-    return list;
-  }
-
-  Future<List<T>> fetchPreviuos(dynamic request) async {
-    final list = <T>[];
-
-    List<T> res = await request.fetchPrevious(
-        onSuccess: (List<T> messages) {}, onError: (CometChatException e) {});
-
-    list.addAll(res);
-    return list;
-  }
-}
+import '../Utils/item_fetcher.dart';
 
 class ConversationList extends StatefulWidget {
   const ConversationList({Key? key}) : super(key: key);

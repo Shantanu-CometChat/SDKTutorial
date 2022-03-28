@@ -2,7 +2,6 @@ import 'dart:convert';
 
 import 'package:cometchat/cometchat_sdk.dart';
 import 'package:flutter/material.dart';
-import 'package:sdk_tutorial/pages/conversation_list.dart';
 import 'package:sdk_tutorial/pages/users/create_user.dart';
 import 'package:sdk_tutorial/pages/users/update_user.dart';
 import 'package:http/http.dart' as http;
@@ -28,7 +27,6 @@ class _CometChatUserListState extends State<CometChatUserList>
   List<User> addMemberList = [];
   Set<int> selectedIndex = {};
 
-  final itemFetcher = ItemFetcher<User>();
   bool isLoading = true;
   bool hasMoreUsers = true;
   bool onsearchLoading = false;
@@ -57,6 +55,10 @@ class _CometChatUserListState extends State<CometChatUserList>
   void initState() {
     super.initState();
     CometChat.addUserListener("user_Listener_id", this);
+    requestBuilder();
+  }
+
+  requestBuilder() {
     usersRequest = (UsersRequestBuilder()..limit = 30
         // ..searchKeyword = "abc"
         // ..userStatus = CometChatUserStatus.online
@@ -206,6 +208,8 @@ class _CometChatUserListState extends State<CometChatUserList>
                       context,
                       MaterialPageRoute(
                           builder: (context) => const CreateUser()));
+                  userList = [];
+                  requestBuilder();
                 },
                 child: const Icon(Icons.add),
               )
