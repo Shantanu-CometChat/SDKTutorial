@@ -3,16 +3,17 @@ import 'package:flutter/material.dart';
 import 'package:cometchat/cometchat_sdk.dart';
 import 'package:sdk_tutorial/constants.dart';
 import 'package:sdk_tutorial/pages/messages/message_functions.dart';
-import 'package:sdk_tutorial/pages/messages/message_options.dart';
 import 'package:sdk_tutorial/pages/messages/message_receipts.dart';
 
 class MessageWidget extends StatefulWidget {
-   TextMessage passedMessage;
-   Function(BaseMessage msg) deleteFunction;
-   MessageWidget(
+   final TextMessage passedMessage;
+   final Function(BaseMessage msg) deleteFunction;
+   final Conversation conversation;
+  const  MessageWidget(
       {Key? key,
       required this.passedMessage,
-        required this.deleteFunction
+        required this.deleteFunction,
+        required this.conversation
       })
       : super(key: key);
 
@@ -47,6 +48,11 @@ class _MessageWidgetState extends State<MessageWidget> {
           crossAxisAlignment:
               sentByMe ? CrossAxisAlignment.end : CrossAxisAlignment.start,
           children: [
+            if(widget.conversation.conversationType == CometChatConversationType.group&& sentByMe==false )
+              Text(widget.passedMessage.sender!.name ,  style :TextStyle(color: Color(0xff000000).withOpacity(0.6) ,
+              fontSize: 13
+              )),
+
             GestureDetector(
               
               onTap: () async {
@@ -61,7 +67,7 @@ class _MessageWidgetState extends State<MessageWidget> {
                 child: Padding(
                   padding: const EdgeInsets.all(8.0),
                   child: Text(text ?? "",
-                  style: TextStyle(color: const Color(0xffFFFFFF).withOpacity(0.92),),
+                  style: TextStyle(color: sentByMe==true? const Color(0xffFFFFFF).withOpacity(0.92):Colors.black  ,),
                   ),
                 ),
               ),

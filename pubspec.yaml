@@ -76,6 +76,12 @@ flutter:
     - assets/read_icon.png
     - assets/sent_icon.png
     - assets/delivered_icon.png
+    - assets/Message Delivered.svg
+    - assets/Message Sent.svg
+    - assets/PlusCircle.svg
+    - assets/Send.svg
+    - assets/Sticker.svg
+    - assets/Bitly.svg
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware.

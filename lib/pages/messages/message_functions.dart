@@ -1,5 +1,6 @@
 import 'package:cometchat/cometchat_sdk.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:sdk_tutorial/constants.dart';
 import 'package:sdk_tutorial/pages/group/group_members.dart';
 import 'package:sdk_tutorial/pages/group/update_group.dart';
@@ -10,7 +11,8 @@ class MessageFunctions extends StatefulWidget {
       {Key? key,
       required this.passedMessage,
       required this.sentByMe,
-      required this.deleteMessage})
+      required this.deleteMessage,
+      })
       : super(key: key);
 
   final BaseMessage passedMessage;
@@ -67,8 +69,22 @@ class _MessageFunctionsState extends State<MessageFunctions> {
                                         Text(widget.passedMessage.sender!.name),
                                   )),
                         title: title,
-                        subtitle:
-                            Text("sent At :${widget.passedMessage.sentAt} "),
+                        subtitle:Column(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text("Sent At :${  DateFormat("yyyy-MM-dd hh:mm:ss").format(widget.passedMessage.sentAt!)} "),
+
+                            if(widget.passedMessage.deliveredAt!=null)
+                              Text("Delivered At :${  DateFormat("yyyy-MM-dd hh:mm:ss").format(widget.passedMessage.deliveredAt!)} "),
+
+
+                            if(widget.passedMessage.readAt!=null)
+                              Text("Read At :${  DateFormat("yyyy-MM-dd hh:mm:ss").format(widget.passedMessage.readAt!)} "),
+
+                          ],
+                        )
+
                       ),
                     )),
               ),
