@@ -70,6 +70,7 @@ class DashBoard extends StatelessWidget {
                   elevation: 5,
                   child: Center(
                     child: ListTile(
+                      leading: Icon(Icons.chat),
                       onTap: () {
                         Navigator.push(
                             context,
@@ -90,6 +91,7 @@ class DashBoard extends StatelessWidget {
                   elevation: 5,
                   child: Center(
                     child: ListTile(
+                      leading: Icon(Icons.people),
                       onTap: () {
                         Navigator.push(
                             context,
@@ -111,6 +113,7 @@ class DashBoard extends StatelessWidget {
                   elevation: 5,
                   child: Center(
                     child: ListTile(
+                      leading: Icon(Icons.groups),
                       onTap: () {
                         Navigator.push(
                             context,
