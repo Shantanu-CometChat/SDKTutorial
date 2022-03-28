@@ -233,7 +233,9 @@ class _MessageListState extends State<MessageList>
   // Triggers fecth() and then add new items or change _hasMore flag
   void _loadMore() {
     _isLoading = true;
-    _itemFetcher.fetch(messageRequest).then((List<BaseMessage> fetchedList) {
+    _itemFetcher
+        .fetchPreviuos(messageRequest)
+        .then((List<BaseMessage> fetchedList) {
       if (fetchedList.isEmpty) {
         setState(() {
           _isLoading = false;
