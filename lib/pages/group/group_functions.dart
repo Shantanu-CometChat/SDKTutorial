@@ -195,28 +195,6 @@ class _GroupFunctionsState extends State<GroupFunctions> {
                               trailing: const Icon(Icons.arrow_forward_ios),
                             )),
                       ),
-                    if (group.type == CometChatGroupType.password &&
-                        !group.hasJoined)
-                      Container(
-                        width: 250,
-                        padding: const EdgeInsets.all(15),
-                        child: TextField(
-                          onChanged: (val) {
-                            groupPassword = val;
-                          },
-                          decoration: const InputDecoration(
-                            border: OutlineInputBorder(),
-                            labelText: 'Password',
-                            hintText: 'Group Password',
-                          ),
-                        ),
-                      ),
-                    if (!group.hasJoined)
-                      MaterialButton(
-                          color: Colors.blue,
-                          minWidth: 200,
-                          onPressed: joinGroup,
-                          child: const Text("Join This Group")),
                     if (group.owner == widget.loggedInUserId)
                       Card(
                         child: SizedBox(

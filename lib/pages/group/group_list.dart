@@ -4,6 +4,8 @@ import 'package:sdk_tutorial/pages/conversation_list.dart';
 import 'package:sdk_tutorial/pages/group/create_group.dart';
 import 'package:sdk_tutorial/pages/group/group_functions.dart';
 
+import '../messages/message_list.dart';
+
 class CometChatGroupList extends StatefulWidget {
   const CometChatGroupList({Key? key}) : super(key: key);
 
@@ -18,6 +20,7 @@ class _CometChatGroupListState extends State<CometChatGroupList> {
   bool hasMoreGroups = true;
   final itemFetcher = ItemFetcher<Group>();
   late GroupsRequest groupsRequest;
+  String groupPassword = "";
 
   @override
   void initState() {
@@ -37,7 +40,7 @@ class _CometChatGroupListState extends State<CometChatGroupList> {
   loadMoreGroups() async {
     isLoading = true;
 
-    await itemFetcher.fetch(groupsRequest).then((List<Group> fetchedList) {
+    await itemFetcher.fetchNext(groupsRequest).then((List<Group> fetchedList) {
       if (fetchedList.isEmpty) {
         setState(() {
           isLoading = false;
@@ -74,6 +77,74 @@ class _CometChatGroupListState extends State<CometChatGroupList> {
     //     onError: (CometChatException exception) {});
   }
 
+  joinGroup(Group group) async {
+    await CometChat.joinGroup(group.guid, group.type, password: groupPassword,
+        onSuccess: (Group group) {
+      debugPrint("Group Joined Successfully : $group ");
+      CometChat.getConversation(group.guid, CometChatConversationType.group,
+          onSuccess: (Conversation conversation) {
+        Navigator.push(
+            context,
+            MaterialPageRoute(
+                builder: (context) => MessageList(
+                      conversation: conversation,
+                    )));
+      }, onError: (CometChatException e) {});
+    }, onError: (CometChatException e) {
+      debugPrint("Group Joining failed with exception: ${e.message}");
+    });
+    setState(() {});
+  }
+
+  showJoinGroupDialog(Group group) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text("Join This Group"),
+          content: Padding(
+            padding: const EdgeInsets.all(15.0),
+            child: group.type == CometChatGroupType.password
+                ? Container(
+                    padding: const EdgeInsets.all(15),
+                    child: TextField(
+                      onChanged: (val) {
+                        groupPassword = val;
+                      },
+                      decoration: const InputDecoration(
+                        border: OutlineInputBorder(),
+                        labelText: 'Password',
+                        hintText: 'Group Password',
+                      ),
+                    ),
+                  )
+                : SizedBox(
+                    height: 0,
+                    width: 0,
+                  ),
+          ),
+          actions: [
+            TextButton(
+              child: const Text(
+                'Cancel',
+              ),
+              onPressed: () {
+                Navigator.pop(context);
+              },
+            ),
+            TextButton(
+              child: Text("Join"),
+              onPressed: () {
+                joinGroup(group);
+                Navigator.pop(context);
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -106,25 +177,30 @@ class _CometChatGroupListState extends State<CometChatGroupList> {
                 child: Center(
                   child: ListTile(
                     onTap: () async {
-                      User? loggedInUser = await CometChat.getLoggedInUser();
-
-                      if (loggedInUser != null) {
-                        Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => GroupFunctions(
-                                      groupId: group.guid,
-                                      loggedInUserId: loggedInUser.uid,
-                                    )));
+                      if (group.hasJoined) {
+                        CometChat.getConversation(
+                            group.guid, CometChatConversationType.group,
+                            onSuccess: (Conversation conversation) {
+                          Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => MessageList(
+                                        conversation: conversation,
+                                      )));
+                        }, onError: (CometChatException e) {});
+                      } else {
+                        showJoinGroupDialog(group);
                       }
                     },
                     leading: CircleAvatar(
-                        child: Image.network(
-                      group.icon,
-                      errorBuilder: (context, object, trace) {
-                        return Text(group.name.substring(0, 1));
-                      },
-                    )),
+                        child: group.icon.isNotEmpty
+                            ? Image.network(
+                                group.icon,
+                                errorBuilder: (context, object, trace) {
+                                  return Text(group.name.substring(0, 1));
+                                },
+                              )
+                            : Text(group.name.substring(0, 1))),
                     title: Text(group.name),
                   ),
                 )),
