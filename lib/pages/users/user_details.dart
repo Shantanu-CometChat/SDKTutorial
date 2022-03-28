@@ -1,6 +1,8 @@
 import 'package:cometchat/cometchat_sdk.dart';
 import 'package:flutter/material.dart';
 
+import '../../Utils/loading_indicator.dart';
+
 class UserDetails extends StatefulWidget {
   const UserDetails({Key? key, required this.user}) : super(key: key);
   final User user;
@@ -10,29 +12,34 @@ class UserDetails extends StatefulWidget {
 }
 
 class _UserDetailsState extends State<UserDetails> {
-  blockUser() {
+  blockUser() async {
+    showLoadingIndicatorDialog(context);
     List<String> uids = [];
     uids.add(widget.user.uid);
-    CometChat.blockUser(uids, onSuccess: (Map<String, dynamic> map) {
+    await CometChat.blockUser(uids, onSuccess: (Map<String, dynamic> map) {
       debugPrint("Blocked User Successfully $map ");
       widget.user.blockedByMe = true;
       setState(() {});
     }, onError: (CometChatException e) {
       debugPrint("Blocked User Unsuccessful ${e.message} ");
     });
+
+    Navigator.pop(context);
   }
 
-  unblockUser() {
+  unblockUser() async {
+    showLoadingIndicatorDialog(context);
     List<String> uids = [];
     uids.add(widget.user.uid);
 
-    CometChat.unblockUser(uids, onSuccess: (Map<String, dynamic> map) {
+    await CometChat.unblockUser(uids, onSuccess: (Map<String, dynamic> map) {
       debugPrint("Unblocked User Successfully $map ");
       widget.user.blockedByMe = false;
       setState(() {});
     }, onError: (CometChatException e) {
       debugPrint("Unblocked User Unsuccessful ${e.message} ");
     });
+    Navigator.pop(context);
   }
 
   @override

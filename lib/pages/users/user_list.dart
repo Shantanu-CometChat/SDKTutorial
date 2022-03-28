@@ -7,6 +7,7 @@ import 'package:sdk_tutorial/pages/users/update_user.dart';
 import 'package:http/http.dart' as http;
 import 'package:sdk_tutorial/pages/users/user_details.dart';
 
+import '../../Utils/loading_indicator.dart';
 import '../../constants.dart';
 import '../messages/message_list.dart';
 
@@ -103,6 +104,7 @@ class _CometChatUserListState extends State<CometChatUserList>
 
   //-----deleting user using http request-----
   deleteUser(String uid, int index) async {
+    showLoadingIndicatorDialog(context);
     String appId = CometChatAuthConstants.appId;
     String region = CometChatAuthConstants.region;
     String apiKey = CometChatAuthConstants.apiKey;
@@ -132,6 +134,7 @@ class _CometChatUserListState extends State<CometChatUserList>
     } else {
       debugPrint(response.body);
     }
+    Navigator.pop(context);
   }
 
   Widget getUserListMenuOptions(User user, int index) {

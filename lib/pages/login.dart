@@ -4,6 +4,8 @@ import 'package:sdk_tutorial/constants.dart';
 import 'package:sdk_tutorial/pages/dashboard.dart';
 import 'package:sdk_tutorial/pages/sign_up.dart';
 
+import '../Utils/loading_indicator.dart';
+
 class Login extends StatefulWidget {
   const Login({Key? key}) : super(key: key);
 
@@ -43,21 +45,22 @@ class _LoginState extends State<Login> {
     //initialization end
   }
 
-
-
   //Login User function must pass userid and authkey should be used only while developing
   loginUser(MaterialButtonUserModel model) async {
+    showLoadingIndicatorDialog(context);
+
     User? _user = await CometChat.getLoggedInUser();
     if (_user == null) {
       await CometChat.login(model.userId, CometChatAuthConstants.authKey,
           onSuccess: (User loggedInUser) {
-            debugPrint("Login Successful : $loggedInUser");
-            _user = loggedInUser;
-          }, onError: (CometChatException e) {
-            debugPrint("Login failed with exception:  ${e.message}");
-          });
+        debugPrint("Login Successful : $loggedInUser");
+        _user = loggedInUser;
+      }, onError: (CometChatException e) {
+        debugPrint("Login failed with exception:  ${e.message}");
+      });
     }
 
+    Navigator.pop(context);
     //if login is successful
     if (_user != null) {
       USERID = _user!.uid;
@@ -65,8 +68,6 @@ class _LoginState extends State<Login> {
           context, MaterialPageRoute(builder: (context) => const DashBoard()));
     }
   }
-
-
 
   Widget userSelectionButton(MaterialButtonUserModel model) {
     return MaterialButton(
@@ -94,9 +95,6 @@ class _LoginState extends State<Login> {
       ),
     );
   }
-
-
-
 
   @override
   Widget build(BuildContext context) {
@@ -154,7 +152,6 @@ class _LoginState extends State<Login> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   const Text("New to cometchat? "),
-
                   GestureDetector(
                       onTap: () {
                         Navigator.push(
@@ -164,10 +161,9 @@ class _LoginState extends State<Login> {
                       },
                       child: const Text("Sign Up",
                           style: TextStyle(
-                            decoration: TextDecoration.underline,
+                              decoration: TextDecoration.underline,
                               fontWeight: FontWeight.bold,
-                            fontSize: 18
-                          )))
+                              fontSize: 18)))
                 ],
               )
             ],
@@ -176,8 +172,6 @@ class _LoginState extends State<Login> {
       )),
     );
   }
-
-
 }
 
 class MaterialButtonUserModel {

@@ -1,8 +1,11 @@
 import 'package:cometchat/cometchat_sdk.dart';
 import 'package:flutter/material.dart';
+import 'package:sdk_tutorial/pages/conversation_list.dart';
 import 'package:sdk_tutorial/pages/group/group_members.dart';
 import 'package:sdk_tutorial/pages/group/update_group.dart';
 import 'package:sdk_tutorial/pages/users/user_list.dart';
+
+import '../../Utils/loading_indicator.dart';
 
 class GroupFunctions extends StatefulWidget {
   const GroupFunctions(
@@ -61,11 +64,13 @@ class _GroupFunctionsState extends State<GroupFunctions> {
   }
 
   deleteGroup() async {
+    showLoadingIndicatorDialog(context);
     await CometChat.deleteGroup(widget.groupId, onSuccess: (String message) {
       debugPrint("Deleted Group Successfully : $message ");
     }, onError: (CometChatException e) {
       debugPrint("Delete Group failed with exception: ${e.message}");
     });
+    Navigator.pop(context);
   }
 
   transferOwnerShipOfGroup() async {

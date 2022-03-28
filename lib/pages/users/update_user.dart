@@ -1,6 +1,7 @@
 import 'package:cometchat/cometchat_sdk.dart';
 import 'package:flutter/material.dart';
 
+import '../../Utils/loading_indicator.dart';
 import '../../constants.dart';
 
 class UpdateUser extends StatefulWidget {
@@ -53,7 +54,8 @@ class _UpdateUserState extends State<UpdateUser> {
   }
 
   //----updating any users using api key----
-  updateUser() {
+  updateUser() async {
+    showLoadingIndicatorDialog(context);
     User user = User(
         uid: widget.user.uid,
         name: nameTextController.text,
@@ -64,11 +66,13 @@ class _UpdateUserState extends State<UpdateUser> {
 
     String apiKey = CometChatAuthConstants.apiKey;
 
-    CometChat.updateUser(user, apiKey, onSuccess: (User updatedUser) {
+    await CometChat.updateUser(user, apiKey, onSuccess: (User updatedUser) {
       debugPrint("Updated User: $updatedUser");
     }, onError: (CometChatException e) {
       debugPrint("Updated User exception : ${e.message}");
     });
+
+    Navigator.pop(context);
   }
 
   @override
