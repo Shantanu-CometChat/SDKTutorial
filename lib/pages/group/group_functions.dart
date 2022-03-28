@@ -126,12 +126,16 @@ class _GroupFunctionsState extends State<GroupFunctions> {
                           child: Center(
                             child: ListTile(
                               leading: CircleAvatar(
-                                  child: Image.network(
-                                group.icon,
-                                errorBuilder: (context, object, trace) {
-                                  return Text(group.name.substring(0, 1));
-                                },
-                              )),
+                                  child: group.icon.isNotEmpty
+                                      ? Image.network(
+                                          group.icon,
+                                          errorBuilder:
+                                              (context, object, trace) {
+                                            return Text(
+                                                group.name.substring(0, 1));
+                                          },
+                                        )
+                                      : Text(group.name.substring(0, 1))),
                               title: Text(group.name),
                               subtitle: Text(
                                   "Members :${group.membersCount}  Type: ${group.type}"),

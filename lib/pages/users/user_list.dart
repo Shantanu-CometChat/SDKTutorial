@@ -9,6 +9,7 @@ import 'package:http/http.dart' as http;
 import 'package:sdk_tutorial/pages/users/user_details.dart';
 
 import '../../constants.dart';
+import '../messages/message_list.dart';
 
 enum NavigateFrom { addMembers, userList }
 
@@ -30,6 +31,7 @@ class _CometChatUserListState extends State<CometChatUserList>
   final itemFetcher = ItemFetcher<User>();
   bool isLoading = true;
   bool hasMoreUsers = true;
+  bool onsearchLoading = false;
 
   late UsersRequest usersRequest;
 
@@ -81,6 +83,7 @@ class _CometChatUserListState extends State<CometChatUserList>
           if (fetchedList.isEmpty) {
             setState(() {
               isLoading = false;
+              onsearchLoading = false;
               hasMoreUsers = false;
             });
           }
@@ -88,6 +91,7 @@ class _CometChatUserListState extends State<CometChatUserList>
           else {
             setState(() {
               isLoading = false;
+              onsearchLoading = false;
               userList.addAll(fetchedList);
             });
           }
@@ -171,9 +175,20 @@ class _CometChatUserListState extends State<CometChatUserList>
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
+          elevation: 0,
+          backgroundColor: Colors.white,
+          centerTitle: false,
+          toolbarHeight: 50,
+          iconTheme: const IconThemeData(color: Colors.black),
           title: widget.navigateFrom == NavigateFrom.userList
-              ? const Text('Users')
-              : const Text("Add Members"),
+              ? const Text(
+                  'Users',
+                  style: TextStyle(color: Colors.black),
+                )
+              : const Text(
+                  "Add Members",
+                  style: TextStyle(color: Colors.black),
+                ),
           actions: [
             if (widget.navigateFrom == NavigateFrom.addMembers &&
                 selectedIndex.isNotEmpty)
@@ -195,80 +210,174 @@ class _CometChatUserListState extends State<CometChatUserList>
                 child: const Icon(Icons.add),
               )
             : null,
-        body: ListView.builder(
-          padding: EdgeInsets.zero,
-          itemCount: hasMoreUsers ? userList.length + 1 : userList.length,
-          itemBuilder: (context, index) {
-            if (index >= userList.length && hasMoreUsers) {
-              //-----if end of list then fetch more users-----
-              if (!isLoading) {
-                loadMoreUsers();
-              }
-              return const Center(
-                child: CircularProgressIndicator(),
-              );
-            }
+        body: Column(
+          children: [
+            //-----Search Box on user list-----
+            if (widget.navigateFrom == NavigateFrom.userList)
+              Container(
+                padding: const EdgeInsets.all(10),
+                height: 60,
+                child: Center(
+                  child: TextField(
+                    onChanged: (val) {
+                      usersRequest = (UsersRequestBuilder()
+                            ..limit = 30
+                            ..searchKeyword = val)
+                          .build();
+                      onsearchLoading = true;
+                      userList = [];
+                      setState(() {});
 
-            final user = userList[index];
-
-            return Card(
-              elevation: 8,
-              color: selectedIndex.contains(index) ? Colors.grey : Colors.white,
-              child: SizedBox(
-                  height: 72,
-                  child: Center(
-                    child: ListTile(
-                      onTap: () {
-                        if (widget.navigateFrom == NavigateFrom.addMembers &&
-                            !selectedIndex.contains(index)) {
-                          addMemberList.add(user);
-                          selectedIndex.add(index);
-                          setState(() {});
-                        } else if (widget.navigateFrom ==
-                                NavigateFrom.addMembers &&
-                            selectedIndex.contains(index)) {
-                          selectedIndex.remove(index);
-                          addMemberList.remove(user);
-                          setState(() {});
+                      loadMoreUsers();
+                    },
+                    style: TextStyle(
+                        fontWeight: FontWeight.w400,
+                        color: Colors.black,
+                        fontSize: 17),
+                    decoration: InputDecoration(
+                        contentPadding: const EdgeInsets.all(0),
+                        hintText: "Search",
+                        prefixIcon: Icon(
+                          Icons.search,
+                          color: const Color(0xff141414).withOpacity(0.40),
+                        ),
+                        hintStyle: TextStyle(
+                            color: const Color(0xff141414).withOpacity(0.58),
+                            fontSize: 17,
+                            fontWeight: FontWeight.w400),
+                        enabledBorder: OutlineInputBorder(
+                            borderSide:
+                                const BorderSide(color: Colors.black, width: 0),
+                            borderRadius: BorderRadius.circular(100)),
+                        focusedBorder: OutlineInputBorder(
+                            borderSide:
+                                const BorderSide(color: Colors.blue, width: 1),
+                            borderRadius: BorderRadius.circular(100)),
+                        fillColor: const Color(0xff141414).withOpacity(0.04),
+                        filled: true),
+                  ),
+                ),
+              ),
+            onsearchLoading
+                ? const Center(child: CircularProgressIndicator())
+                : Expanded(
+                    child: ListView.builder(
+                      padding: EdgeInsets.zero,
+                      itemCount:
+                          hasMoreUsers ? userList.length + 1 : userList.length,
+                      itemBuilder: (context, index) {
+                        if (index >= userList.length && hasMoreUsers) {
+                          //-----if end of list then fetch more users-----
+                          if (!isLoading) {
+                            loadMoreUsers();
+                          }
+                          return const Center(
+                            child: CircularProgressIndicator(),
+                          );
                         }
+
+                        final user = userList[index];
+
+                        return Card(
+                          elevation: 8,
+                          color: selectedIndex.contains(index)
+                              ? Colors.grey
+                              : Colors.white,
+                          child: SizedBox(
+                              height: 72,
+                              child: Center(
+                                child: ListTile(
+                                  onTap: () {
+                                    if (widget.navigateFrom ==
+                                            NavigateFrom.addMembers &&
+                                        !selectedIndex.contains(index)) {
+                                      addMemberList.add(user);
+                                      selectedIndex.add(index);
+                                      setState(() {});
+                                    } else if (widget.navigateFrom ==
+                                            NavigateFrom.addMembers &&
+                                        selectedIndex.contains(index)) {
+                                      selectedIndex.remove(index);
+                                      addMemberList.remove(user);
+                                      setState(() {});
+                                    } else if (widget.navigateFrom ==
+                                        NavigateFrom.userList) {
+                                      // CometChat.getConversation(
+                                      //     user.uid, ConversationType.user,
+                                      //     onSuccess:
+                                      //         (Conversation conversation) {
+                                      //   Navigator.push(
+                                      //       context,
+                                      //       MaterialPageRoute(
+                                      //           builder: (context) =>
+                                      //               MessageList(
+                                      //                 conversation:
+                                      //                     conversation,
+                                      //               )));
+                                      // }, onError: (CometChatException e) {
+                                      //   Conversation createConversation =
+                                      //       Conversation(
+                                      //     conversationType:
+                                      //         ConversationType.user,
+                                      //     conversationWith: user,
+                                      //   );
+                                      //
+                                      //   Navigator.push(
+                                      //       context,
+                                      //       MaterialPageRoute(
+                                      //           builder: (context) =>
+                                      //               MessageList(
+                                      //                 conversation:
+                                      //                     createConversation,
+                                      //               )));
+                                      // });
+                                    }
+                                  },
+                                  leading: CircleAvatar(
+                                      child: Stack(
+                                    children: [
+                                      CircleAvatar(
+                                          child: user.avatar != null &&
+                                                  user.avatar!.isNotEmpty
+                                              ? Image.network(user.avatar!)
+                                              : Text(
+                                                  user.name.substring(0, 1))),
+                                      if (widget.navigateFrom ==
+                                              NavigateFrom.userList &&
+                                          user.status != null)
+                                        Positioned(
+                                          height: 12,
+                                          width: 12,
+                                          right: 1,
+                                          bottom: 1,
+                                          child: Container(
+                                            height: 12,
+                                            width: 12,
+                                            decoration: BoxDecoration(
+                                                color: user.status ==
+                                                        CometChatUserStatus
+                                                            .online
+                                                    ? Colors.blue
+                                                    : Colors.grey,
+                                                borderRadius:
+                                                    BorderRadius.circular(10)),
+                                          ),
+                                        )
+                                    ],
+                                  )),
+                                  title: Text(user.name),
+                                  subtitle: Text(user.uid),
+                                  trailing: widget.navigateFrom ==
+                                          NavigateFrom.userList
+                                      ? getUserListMenuOptions(user, index)
+                                      : null,
+                                ),
+                              )),
+                        );
                       },
-                      leading: CircleAvatar(
-                          child: Stack(
-                        children: [
-                          CircleAvatar(
-                              child:
-                                  user.avatar != null && user.avatar!.isNotEmpty
-                                      ? Image.network(user.avatar!)
-                                      : Text(user.name.substring(0, 1))),
-                          if (widget.navigateFrom == NavigateFrom.userList &&
-                              user.status != null)
-                            Positioned(
-                              height: 12,
-                              width: 12,
-                              right: 1,
-                              bottom: 1,
-                              child: Container(
-                                height: 12,
-                                width: 12,
-                                decoration: BoxDecoration(
-                                    color: user.status ==
-                                            CometChatUserStatus.online
-                                        ? Colors.blue
-                                        : Colors.grey,
-                                    borderRadius: BorderRadius.circular(10)),
-                              ),
-                            )
-                        ],
-                      )),
-                      title: Text(user.name),
-                      subtitle: Text(user.uid),
-                      trailing: widget.navigateFrom == NavigateFrom.userList
-                          ? getUserListMenuOptions(user, index)
-                          : null,
                     ),
-                  )),
-            );
-          },
+                  ),
+          ],
         ));
   }
 }

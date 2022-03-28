@@ -9,6 +9,7 @@ import 'package:sdk_tutorial/pages/group/group_functions.dart';
 import 'package:sdk_tutorial/pages/messages/media_message_widget.dart';
 import 'package:sdk_tutorial/pages/messages/message_widget.dart';
 
+import '../conversation_list.dart';
 import '../users/user_details.dart';
 // import 'package:mime/mime.dart';
 
@@ -813,17 +814,5 @@ class _MessageListState extends State<MessageList>
         ],
       )),
     );
-  }
-}
-
-class ItemFetcher<T> {
-  Future<List<T>> fetch(dynamic request) async {
-    final list = <T>[];
-
-    List<T> res = await request.fetchPrevious(
-        onSuccess: (List<T> messages) {}, onError: (CometChatException e) {});
-
-    list.addAll(res);
-    return list;
   }
 }
