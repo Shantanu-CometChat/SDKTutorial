@@ -154,7 +154,7 @@ class _LoginState extends State<Login> {
                   const Text("New to cometchat? "),
                   GestureDetector(
                       onTap: () {
-                        Navigator.push(
+                        Navigator.pushReplacement(
                             context,
                             MaterialPageRoute(
                                 builder: (context) => const SignUp()));

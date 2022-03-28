@@ -1,6 +1,7 @@
 import 'package:cometchat/cometchat_sdk.dart';
 import 'package:flutter/material.dart';
 
+import '../../Utils/custom_toast.dart';
 import '../../Utils/loading_indicator.dart';
 import '../../constants.dart';
 
@@ -36,8 +37,10 @@ class _CreateUserState extends State<CreateUser> {
 
     await CometChat.createUser(user, authKey, onSuccess: (User user) {
       debugPrint("Create User successful $user");
+      showCustomToast(msg: 'User Created Successfully');
     }, onError: (CometChatException e) {
       debugPrint("Create User Failed with exception ${e.message}");
+      showCustomToast(msg: 'Something went Wrong');
     });
 
     Navigator.pop(context);
