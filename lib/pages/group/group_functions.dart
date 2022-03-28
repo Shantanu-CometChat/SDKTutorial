@@ -126,12 +126,16 @@ class _GroupFunctionsState extends State<GroupFunctions> {
                           child: Center(
                             child: ListTile(
                               leading: CircleAvatar(
-                                  child: Image.network(
-                                group.icon,
-                                errorBuilder: (context, object, trace) {
-                                  return Text(group.name.substring(0, 1));
-                                },
-                              )),
+                                  child: group.icon.isNotEmpty
+                                      ? Image.network(
+                                          group.icon,
+                                          errorBuilder:
+                                              (context, object, trace) {
+                                            return Text(
+                                                group.name.substring(0, 1));
+                                          },
+                                        )
+                                      : Text(group.name.substring(0, 1))),
                               title: Text(group.name),
                               subtitle: Text(
                                   "Members :${group.membersCount}  Type: ${group.type}"),
@@ -191,28 +195,6 @@ class _GroupFunctionsState extends State<GroupFunctions> {
                               trailing: const Icon(Icons.arrow_forward_ios),
                             )),
                       ),
-                    if (group.type == CometChatGroupType.password &&
-                        !group.hasJoined)
-                      Container(
-                        width: 250,
-                        padding: const EdgeInsets.all(15),
-                        child: TextField(
-                          onChanged: (val) {
-                            groupPassword = val;
-                          },
-                          decoration: const InputDecoration(
-                            border: OutlineInputBorder(),
-                            labelText: 'Password',
-                            hintText: 'Group Password',
-                          ),
-                        ),
-                      ),
-                    if (!group.hasJoined)
-                      MaterialButton(
-                          color: Colors.blue,
-                          minWidth: 200,
-                          onPressed: joinGroup,
-                          child: const Text("Join This Group")),
                     if (group.owner == widget.loggedInUserId)
                       Card(
                         child: SizedBox(

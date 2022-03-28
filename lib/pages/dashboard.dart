@@ -60,46 +60,63 @@ class DashBoard extends StatelessWidget {
           child: Column(
             children: [
               //-------Conversation List-------
-              Card(
-                elevation: 5,
-                child: ListTile(
-                  onTap: () {
-                    Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => const ConversationList()));
-                  },
-                  title: const Text("Conversation List"),
+              SizedBox(
+                height: 72,
+                child: Card(
+                  elevation: 5,
+                  child: Center(
+                    child: ListTile(
+                      onTap: () {
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) =>
+                                    const ConversationList()));
+                      },
+                      title: const Text("Conversation List"),
+                    ),
+                  ),
                 ),
               ),
 
               //-------User List-------
-              Card(
-                elevation: 5,
-                child: ListTile(
-                  onTap: () {
-                    Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => const CometChatUserList(
-                                  navigateFrom: NavigateFrom.userList,
-                                )));
-                  },
-                  title: const Text("User List"),
+              SizedBox(
+                height: 72,
+                child: Card(
+                  elevation: 5,
+                  child: Center(
+                    child: ListTile(
+                      onTap: () {
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => const CometChatUserList(
+                                      navigateFrom: NavigateFrom.userList,
+                                    )));
+                      },
+                      title: const Text("User List"),
+                    ),
+                  ),
                 ),
               ),
 
               //-------Group List-------
-              Card(
-                elevation: 5,
-                child: ListTile(
-                  onTap: () {
-                    Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => const CometChatGroupList()));
-                  },
-                  title: const Text("Group List"),
+              SizedBox(
+                height: 72,
+                child: Card(
+                  elevation: 5,
+                  child: Center(
+                    child: ListTile(
+                      onTap: () {
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) =>
+                                    const CometChatGroupList()));
+                      },
+                      title: const Text("Group List"),
+                    ),
+                  ),
                 ),
               ),
             ],

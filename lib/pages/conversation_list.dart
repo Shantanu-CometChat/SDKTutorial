@@ -1,20 +1,10 @@
 import 'package:cometchat/cometchat_sdk.dart';
 import 'package:flutter/material.dart';
+import 'package:sdk_tutorial/Utils/slide_menu.dart';
 import 'package:sdk_tutorial/pages/messages/message_list.dart';
+import 'package:badges/badges.dart';
 
-//----------- fetch items like conversation list,user list ,etc.-----------
-class ItemFetcher<T> {
-  Future<List<T>> fetch(dynamic request) async {
-    final list = <T>[];
-
-    List<T> res = await request.fetchNext(
-        onSuccess: (List<T> conversations) {},
-        onError: (CometChatException e) {});
-
-    list.addAll(res);
-    return list;
-  }
-}
+import '../Utils/item_fetcher.dart';
 
 class ConversationList extends StatefulWidget {
   const ConversationList({Key? key}) : super(key: key);
@@ -32,7 +22,7 @@ class _ConversationListState extends State<ConversationList>
   bool hasMoreItems = true;
   late ConversationsRequest conversationRequest;
 
-  Map<int, bool> _typingIndicatorMap = {};
+  Set<int> typingIndicatorMap = {};
   @override
   void initState() {
     super.initState();
@@ -201,9 +191,9 @@ class _ConversationListState extends State<ConversationList>
             element.conversationId!.contains(typingIndicator.sender.uid))));
 
     if (isTypingStarted == true) {
-      _typingIndicatorMap[matchingIndex] = true;
+      typingIndicatorMap.add(matchingIndex);
     } else {
-      _typingIndicatorMap.remove(matchingIndex);
+      typingIndicatorMap.remove(matchingIndex);
     }
     setState(() {});
   }
@@ -234,7 +224,7 @@ class _ConversationListState extends State<ConversationList>
   void _loadMore() {
     isLoading = true;
     itemFetcher
-        .fetch(conversationRequest)
+        .fetchNext(conversationRequest)
         .then((List<Conversation> fetchedList) {
       if (fetchedList.isEmpty) {
         setState(() {
@@ -259,6 +249,7 @@ class _ConversationListState extends State<ConversationList>
   Widget getConversationListItem(int index, Conversation conversation) {
     String _name;
     String? _avatar;
+    String unreadCount = '';
 
     //----------- user conversation -----------
     if (conversation.conversationWith is User) {
@@ -272,28 +263,79 @@ class _ConversationListState extends State<ConversationList>
       _avatar = _group.icon;
       _name = _group.name;
     }
+    if (conversation.unreadMessageCount != null &&
+        conversation.unreadMessageCount != 0) {
+      unreadCount = conversation.unreadMessageCount.toString();
+    }
 
-    return Card(
-      child: SizedBox(
-        height: 72,
-        width: MediaQuery.of(context).size.width,
-        child: Center(
-          child: ListTile(
-            onTap: () {
-              Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      builder: (context) => MessageList(
-                            conversation: conversationList[index],
-                          )));
-            },
-            leading: CircleAvatar(
-                child: _avatar != null && _avatar.trim() != ''
-                    ? Image.network(
-                        _avatar,
+    return SwipeMenu(
+      menuItems: [
+        GestureDetector(
+          onTap: () {
+            deleteConversation(index);
+          },
+          child: Container(
+            color: Colors.redAccent,
+            height: 72,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Icon(
+                  Icons.delete,
+                  color: Colors.white,
+                  size: 25,
+                ),
+                const Text(
+                  "Delete",
+                  style: TextStyle(color: Colors.white, fontSize: 12),
+                  maxLines: 1,
+                  overflow: TextOverflow.fade,
+                )
+              ],
+            ),
+          ),
+        )
+      ],
+      child: Card(
+        child: SizedBox(
+          height: 72,
+          width: MediaQuery.of(context).size.width,
+          child: Center(
+            child: ListTile(
+                onTap: () {
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => MessageList(
+                                conversation: conversationList[index],
+                              )));
+                },
+                leading: Hero(
+                  tag: conversationList[index],
+                  child: CircleAvatar(
+                      child: _avatar != null && _avatar.trim() != ''
+                          ? Image.network(
+                              _avatar,
+                            )
+                          : Text(_name.substring(0, 2))),
+                ),
+                trailing: unreadCount != ''
+                    ? Badge(
+                        toAnimate: false,
+                        shape: BadgeShape.circle,
+                        badgeColor: Colors.blue,
+                        badgeContent: Text(unreadCount,
+                            style: const TextStyle(color: Colors.white)),
                       )
-                    : Text(_name.substring(0, 2))),
-            title: Text(_name),
+                    : null,
+                title: Text(_name),
+                subtitle: typingIndicatorMap.contains(index)
+                    ? Text(
+                        'is typing...',
+                        style: TextStyle(color: Colors.blue),
+                      )
+                    : null),
           ),
         ),
       ),
