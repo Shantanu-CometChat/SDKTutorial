@@ -51,7 +51,6 @@ class _MessageListState extends State<MessageList>
   String conversationWithId = "";
   int activeParentMessageId = 103;
 
-
   @override
   void initState() {
     int limit = 2;
@@ -67,27 +66,27 @@ class _MessageListState extends State<MessageList>
     CometChat.addMessageListener("listenerId", this);
     if (widget.conversation.conversationType == CometChatReceiverType.user) {
       messageRequest = (MessagesRequestBuilder()
-        ..uid = (widget.conversation.conversationWith as User).uid
-        ..limit = limit
-        ..hideDeleted = true)
+            ..uid = (widget.conversation.conversationWith as User).uid
+            ..limit = limit
+            ..hideDeleted = true)
           .build();
       appTitle = (widget.conversation.conversationWith as User).name;
       _avatar = (widget.conversation.conversationWith as User).avatar;
       appSubtitle = (widget.conversation.conversationWith as User).status ?? '';
     } else {
       messageRequest = (MessagesRequestBuilder()
-        ..guid = (widget.conversation.conversationWith as Group).guid
-        ..limit = limit
-        ..hideDeleted = true
-        ..categories = [
-          CometChatMessageCategory.action,
-          CometChatMessageCategory.message
-        ])
+            ..guid = (widget.conversation.conversationWith as Group).guid
+            ..limit = limit
+            ..hideDeleted = true
+            ..categories = [
+              CometChatMessageCategory.action,
+              CometChatMessageCategory.message
+            ])
           .build();
       appTitle = (widget.conversation.conversationWith as Group).name;
       _avatar = (widget.conversation.conversationWith as Group).icon;
       appSubtitle =
-      "${(widget.conversation.conversationWith as Group).membersCount.toString()} members";
+          "${(widget.conversation.conversationWith as Group).membersCount.toString()} members";
     }
 
     appBarAvatar = Hero(
@@ -95,8 +94,8 @@ class _MessageListState extends State<MessageList>
       child: CircleAvatar(
           child: _avatar != null && _avatar.trim() != ''
               ? Image.network(
-            _avatar,
-          )
+                  _avatar,
+                )
               : Text(appTitle.substring(0, 2))),
     );
 
@@ -221,7 +220,7 @@ class _MessageListState extends State<MessageList>
   @override
   void onMessageDeleted(BaseMessage message) {
     int matchingIndex =
-    _messageList.indexWhere((element) => (element.id == message.id));
+        _messageList.indexWhere((element) => (element.id == message.id));
 
     _messageList.removeAt(matchingIndex);
     setState(() {});
@@ -249,7 +248,7 @@ class _MessageListState extends State<MessageList>
     _itemFetcher
         .fetchPreviuos(messageRequest)
         .then((List<BaseMessage> fetchedList) {
-          if (fetchedList.isEmpty) {
+      if (fetchedList.isEmpty) {
         setState(() {
           _isLoading = false;
           _hasMore = false;
@@ -288,11 +287,11 @@ class _MessageListState extends State<MessageList>
   reinitiateList() {
     if (widget.conversation.conversationType == CometChatReceiverType.user) {
       messageRequest = (MessagesRequestBuilder()
-        ..uid = (widget.conversation.conversationWith as User).uid)
+            ..uid = (widget.conversation.conversationWith as User).uid)
           .build();
     } else {
       messageRequest = (MessagesRequestBuilder()
-        ..guid = (widget.conversation.conversationWith as Group).guid)
+            ..guid = (widget.conversation.conversationWith as Group).guid)
           .build();
     }
 
@@ -334,12 +333,27 @@ class _MessageListState extends State<MessageList>
 
   deleteMessage(BaseMessage message) async {
     int matchingIndex =
-    _messageList.indexWhere((element) => (element.id == message.id));
+        _messageList.indexWhere((element) => (element.id == message.id));
 
     await CometChat.deleteMessage(message.id,
         onSuccess: (_) {}, onError: (_) {});
 
     _messageList.removeAt(matchingIndex);
+    setState(() {});
+  }
+
+  editMessage(BaseMessage message, String updatedText) async {
+    int matchingIndex =
+        _messageList.indexWhere((element) => (element.id == message.id));
+
+    TextMessage editedMessage = message as TextMessage;
+    editedMessage.text = updatedText;
+
+    await CometChat.editMessage(editedMessage,
+        onSuccess: (BaseMessage updatedMessage) {
+      _messageList[matchingIndex] = updatedMessage;
+    }, onError: (CometChatException e) {});
+
     setState(() {});
   }
 
@@ -381,10 +395,10 @@ class _MessageListState extends State<MessageList>
           (widget.conversation.conversationWith as Group).guid;
       CometChat.getOnlineGroupMemberCount([conversationWith],
           onSuccess: (Map<String, int> count) {
-            debugPrint("Fetched Online Group Member Count Successfully : $count ");
-          }, onError: (CometChatException e) {
-            debugPrint("Online Group Member  failed with exception: ${e.message}");
-          });
+        debugPrint("Fetched Online Group Member Count Successfully : $count ");
+      }, onError: (CometChatException e) {
+        debugPrint("Online Group Member  failed with exception: ${e.message}");
+      });
     }
   }
 
@@ -435,10 +449,10 @@ class _MessageListState extends State<MessageList>
 
     CometChat.tagConversation(conversationWith, conversationType, tags,
         onSuccess: (Conversation conversation) {
-          debugPrint("Conversation tagged Successfully : $conversation");
-        }, onError: (CometChatException e) {
-          debugPrint("Conversation tagging failed  : ${e.message}");
-        });
+      debugPrint("Conversation tagged Successfully : $conversation");
+    }, onError: (CometChatException e) {
+      debugPrint("Conversation tagging failed  : ${e.message}");
+    });
   }
 
   getConversation() {
@@ -446,10 +460,10 @@ class _MessageListState extends State<MessageList>
     String conversationType = "user";
     CometChat.getConversation(conversationWith, conversationType,
         onSuccess: (Conversation conversation) {
-          debugPrint("Fetch Conversation Successfully : $conversation");
-        }, onError: (CometChatException e) {
-          debugPrint("Fetch Conversation  failed  : ${e.message}");
-        });
+      debugPrint("Fetch Conversation Successfully : $conversation");
+    }, onError: (CometChatException e) {
+      debugPrint("Fetch Conversation  failed  : ${e.message}");
+    });
   }
 
   getLastMessageId() async {
@@ -488,7 +502,7 @@ class _MessageListState extends State<MessageList>
           color: const Color(0xff141414).withOpacity(0.06),
           borderRadius: const BorderRadius.all(
               Radius.circular(8.0) //                 <--- border radius here
-          ),
+              ),
         ),
         child: Column(
           children: [
@@ -496,18 +510,19 @@ class _MessageListState extends State<MessageList>
               children: [
                 Expanded(
                     child: TextFormField(
-                      cursorColor: const Color(0xff141414).withOpacity(0.58),
-                      focusNode: _focus,
-                      controller: TextEditingController(text: messageText),
-                      onChanged: (val) {
-                        messageText = val;
-                      },
-                      decoration: const InputDecoration(
-                        hintText: "Message",
-                        focusedBorder: InputBorder.none,
-                        enabledBorder: InputBorder.none,
-                      ),
-                    ))
+                  cursorColor: const Color(0xff141414).withOpacity(0.58),
+                  focusNode: _focus,
+                  controller: TextEditingController(text: messageText),
+                  onChanged: (val) {
+                    messageText = val;
+                  },
+                  maxLines: null,
+                  decoration: const InputDecoration(
+                    hintText: "Message",
+                    focusedBorder: InputBorder.none,
+                    enabledBorder: InputBorder.none,
+                  ),
+                ))
               ],
             ),
             const Divider(height: 1),
@@ -517,7 +532,6 @@ class _MessageListState extends State<MessageList>
                 mainAxisSize: MainAxisSize.max,
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-
                   IconButton(
                       iconSize: 24,
                       padding: const EdgeInsets.all(0),
@@ -527,22 +541,15 @@ class _MessageListState extends State<MessageList>
                         width: 24,
                         height: 24,
                       ),
-                      onPressed: ()async {
-
-                        ActionItem? item =  await showCometChatActionSheet(
-                            context:context,
+                      onPressed: () async {
+                        ActionItem? item = await showCometChatActionSheet(
+                            context: context,
                             actionItems: [
                               ActionItem(
-                                  id: 1,
-                                  title: "Polls",
-                                  icon: Icons.list
-                              )
-                            ]
-                        );
+                                  id: 1, title: "Polls", icon: Icons.list)
+                            ]);
                       } //do something,
-                  ),
-
-
+                      ),
                   Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
@@ -556,7 +563,7 @@ class _MessageListState extends State<MessageList>
                             height: 24,
                           ),
                           onPressed: sendMediaMessage //do something,
-                      ),
+                          ),
                       const SizedBox(
                         width: 10,
                       ),
@@ -573,7 +580,7 @@ class _MessageListState extends State<MessageList>
                             FocusScope.of(context).requestFocus(FocusNode());
                             sendTextMessage();
                           } //do something,
-                      ),
+                          ),
                     ],
                   )
                 ],
@@ -595,6 +602,7 @@ class _MessageListState extends State<MessageList>
         passedMessage: (_messageList[index] as TextMessage),
         deleteFunction: deleteMessage,
         conversation: widget.conversation,
+        editFunction: editMessage,
       );
     } else if (_messageList[index] is action_alias.Action) {
       return ActionWidget(
@@ -617,7 +625,7 @@ class _MessageListState extends State<MessageList>
     }
 
     FilePickerResult? result =
-    await FilePicker.platform.pickFiles(type: FileType.any);
+        await FilePicker.platform.pickFiles(type: FileType.any);
 
     if (result != null && result.files.single.path != null) {
       filePath = result.files.single.path!;
@@ -645,12 +653,12 @@ class _MessageListState extends State<MessageList>
 
       await CometChat.sendMediaMessage(mediaMessage,
           onSuccess: (MediaMessage message) {
-            debugPrint("Media message sent successfully: ${mediaMessage.metadata}");
-            _messageList.insert(0, message);
-            setState(() {});
-          }, onError: (e) {
-            debugPrint("Media message sending failed with exception: ${e.message}");
-          });
+        debugPrint("Media message sent successfully: ${mediaMessage.metadata}");
+        _messageList.insert(0, message);
+        setState(() {});
+      }, onError: (e) {
+        debugPrint("Media message sending failed with exception: ${e.message}");
+      });
     } else {
       // User canceled the picker
     }
@@ -717,9 +725,9 @@ class _MessageListState extends State<MessageList>
                       context,
                       MaterialPageRoute(
                           builder: (context) => GroupFunctions(
-                            groupId: group.guid,
-                            loggedInUserId: USERID,
-                          )));
+                                groupId: group.guid,
+                                loggedInUserId: USERID,
+                              )));
                 } else {
                   User user = widget.conversation.conversationWith as User;
 
@@ -727,8 +735,8 @@ class _MessageListState extends State<MessageList>
                       context,
                       MaterialPageRoute(
                           builder: (context) => UserDetails(
-                            user: user,
-                          )));
+                                user: user,
+                              )));
                 }
               },
               child: Icon(Icons.info_outline)),
@@ -793,31 +801,31 @@ class _MessageListState extends State<MessageList>
       ),
       body: SafeArea(
           child: Column(
-            children: [
-              Expanded(
-                child: ListView.builder(
-                  reverse: true,
-                  // to diisplay loading tile if more items
-                  itemCount:
+        children: [
+          Expanded(
+            child: ListView.builder(
+              reverse: true,
+              // to diisplay loading tile if more items
+              itemCount:
                   _hasMore ? _messageList.length + 1 : _messageList.length,
-                  itemBuilder: (BuildContext context, int index) {
-                    // Uncomment the following line to see in real time how ListView.builder works
-                    // print('ListView.builder is building index $index');
-                    if (index >= _messageList.length) {
-                      // Don't trigger if one async loading is already under way
-                      if (!_isLoading) {
-                        _loadMore();
-                      }
-                      return const LoadingIndicator();
-                    }
-                    return getMessageWidget(index);
-                  },
-                ),
-              ),
-              if (typing == true) getTypingIndicator(),
-              getMessageComposer(context)
-            ],
-          )),
+              itemBuilder: (BuildContext context, int index) {
+                // Uncomment the following line to see in real time how ListView.builder works
+                // print('ListView.builder is building index $index');
+                if (index >= _messageList.length) {
+                  // Don't trigger if one async loading is already under way
+                  if (!_isLoading) {
+                    _loadMore();
+                  }
+                  return const LoadingIndicator();
+                }
+                return getMessageWidget(index);
+              },
+            ),
+          ),
+          if (typing == true) getTypingIndicator(),
+          getMessageComposer(context)
+        ],
+      )),
     );
   }
 }

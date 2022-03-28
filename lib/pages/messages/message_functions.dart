@@ -2,22 +2,20 @@ import 'package:cometchat/cometchat_sdk.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:sdk_tutorial/constants.dart';
-import 'package:sdk_tutorial/pages/group/group_members.dart';
-import 'package:sdk_tutorial/pages/group/update_group.dart';
-import 'package:sdk_tutorial/pages/users/user_list.dart';
 
 class MessageFunctions extends StatefulWidget {
-  const MessageFunctions(
-      {Key? key,
-      required this.passedMessage,
-      required this.sentByMe,
-      required this.deleteMessage,
-      })
-      : super(key: key);
+  const MessageFunctions({
+    Key? key,
+    required this.passedMessage,
+    required this.sentByMe,
+    required this.deleteMessage,
+    required this.editMessage,
+  }) : super(key: key);
 
   final BaseMessage passedMessage;
   final bool sentByMe;
   final Function(BaseMessage) deleteMessage;
+  final Function(BaseMessage, String) editMessage;
 
   @override
   _MessageFunctionsState createState() => _MessageFunctionsState();
@@ -26,6 +24,7 @@ class MessageFunctions extends StatefulWidget {
 class _MessageFunctionsState extends State<MessageFunctions> {
   late String name;
   late Widget title;
+  String editMessageText = "";
 
   @override
   void initState() {
@@ -41,6 +40,50 @@ class _MessageFunctionsState extends State<MessageFunctions> {
   deleteMessage() async {
     widget.deleteMessage(widget.passedMessage);
     Navigator.of(context).pop();
+  }
+
+  showEditMessageDialog() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text(
+            "Edit Message",
+            textAlign: TextAlign.center,
+          ),
+          content: Padding(
+              padding: const EdgeInsets.all(5.0),
+              child: TextField(
+                onChanged: (val) {
+                  editMessageText = val;
+                },
+                maxLines: null,
+                decoration: const InputDecoration(
+                  border: OutlineInputBorder(),
+                  labelText: 'Message',
+                  hintText: 'Updated Message',
+                ),
+              )),
+          actions: [
+            TextButton(
+              child: const Text(
+                'Cancel',
+              ),
+              onPressed: () {
+                Navigator.pop(context);
+              },
+            ),
+            TextButton(
+              child: const Text("Confirm"),
+              onPressed: () {
+                widget.editMessage(widget.passedMessage, editMessageText);
+                Navigator.pop(context);
+              },
+            ),
+          ],
+        );
+      },
+    );
   }
 
   @override
@@ -59,33 +102,30 @@ class _MessageFunctionsState extends State<MessageFunctions> {
                     height: 72,
                     child: Center(
                       child: ListTile(
-                        leading: CircleAvatar(
-                            child: iconUrl != null && iconUrl.trim() != ''
-                                ? Image.network(
-                                    iconUrl,
-                                  )
-                                : Center(
-                                    child:
-                                        Text(widget.passedMessage.sender!.name),
-                                  )),
-                        title: title,
-                        subtitle:Column(
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text("Sent At :${  DateFormat("yyyy-MM-dd hh:mm:ss").format(widget.passedMessage.sentAt!)} "),
-
-                            if(widget.passedMessage.deliveredAt!=null)
-                              Text("Delivered At :${  DateFormat("yyyy-MM-dd hh:mm:ss").format(widget.passedMessage.deliveredAt!)} "),
-
-
-                            if(widget.passedMessage.readAt!=null)
-                              Text("Read At :${  DateFormat("yyyy-MM-dd hh:mm:ss").format(widget.passedMessage.readAt!)} "),
-
-                          ],
-                        )
-
-                      ),
+                          leading: CircleAvatar(
+                              child: iconUrl != null && iconUrl.trim() != ''
+                                  ? Image.network(
+                                      iconUrl,
+                                    )
+                                  : Center(
+                                      child: Text(
+                                          widget.passedMessage.sender!.name),
+                                    )),
+                          title: title,
+                          subtitle: Column(
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                  "Sent At :${DateFormat("yyyy-MM-dd hh:mm:ss").format(widget.passedMessage.sentAt!)} "),
+                              if (widget.passedMessage.deliveredAt != null)
+                                Text(
+                                    "Delivered At :${DateFormat("yyyy-MM-dd hh:mm:ss").format(widget.passedMessage.deliveredAt!)} "),
+                              if (widget.passedMessage.readAt != null)
+                                Text(
+                                    "Read At :${DateFormat("yyyy-MM-dd hh:mm:ss").format(widget.passedMessage.readAt!)} "),
+                            ],
+                          )),
                     )),
               ),
               if (widget.passedMessage.sender!.uid == USERID)
@@ -93,6 +133,26 @@ class _MessageFunctionsState extends State<MessageFunctions> {
                   child: SizedBox(
                       height: 50,
                       child: ListTile(
+                        leading: const Icon(
+                          Icons.edit,
+                          color: Colors.blue,
+                        ),
+                        onTap: showEditMessageDialog,
+                        title: const Text(
+                          "Edit Message",
+                          style: TextStyle(color: Colors.blue),
+                        ),
+                      )),
+                ),
+              if (widget.passedMessage.sender!.uid == USERID)
+                Card(
+                  child: SizedBox(
+                      height: 50,
+                      child: ListTile(
+                        leading: const Icon(
+                          Icons.delete,
+                          color: Colors.red,
+                        ),
                         onTap: deleteMessage,
                         title: const Text(
                           "Delete Message",
