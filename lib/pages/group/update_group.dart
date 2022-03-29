@@ -31,7 +31,7 @@ class _UpdateGroupState extends State<UpdateGroup> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Update Group"),
+        title: const Text("Update Group"),
       ),
       body: SingleChildScrollView(
         child: Form(
@@ -109,7 +109,6 @@ class _UpdateGroupState extends State<UpdateGroup> {
                       }).toList(),
                       onChanged: (String? val) {
                         groupType = val;
-                        print(groupType);
                         setState(() {});
                       },
                     ),
@@ -171,8 +170,8 @@ class _UpdateGroupState extends State<UpdateGroup> {
                       ));
                     }
                   },
-                  child: Text("Update")),
-              SizedBox(
+                  child: const Text("Update")),
+              const SizedBox(
                 height: 10,
               ),
               if (isLoading) const CircularProgressIndicator()

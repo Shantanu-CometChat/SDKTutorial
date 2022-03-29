@@ -5,27 +5,30 @@ import 'package:sdk_tutorial/constants.dart';
 
 class MessageReceipts extends StatelessWidget {
   final BaseMessage passedMessage;
-  const MessageReceipts({Key? key,
-  required this.passedMessage
-  }) : super(key: key);
+  final bool showTime;
+  const MessageReceipts(
+      {Key? key, required this.passedMessage, this.showTime = true})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    Widget receiptIcon  = sentIcon();
-    if(passedMessage.deliveredAt!=null)receiptIcon = deliveredIcon();
-    if(passedMessage.readAt!=null)receiptIcon = readIcon();
+    Widget receiptIcon = sentIcon();
+    if (passedMessage.deliveredAt != null) receiptIcon = deliveredIcon();
+    if (passedMessage.readAt != null) receiptIcon = readIcon();
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        Text(receiptFormatter.format(passedMessage.sentAt!),
-          style: TextStyle(color: const Color(0xff141414).withOpacity(0.46)  ),
-        ),
-        receiptIcon] ,
-
+        if (showTime)
+          Text(
+            receiptFormatter.format(passedMessage.sentAt!),
+            style: TextStyle(color: const Color(0xff141414).withOpacity(0.46)),
+          ),
+        receiptIcon
+      ],
     );
   }
 
-  Widget readIcon(){
+  Widget readIcon() {
     return SvgPicture.asset(
       "assets/Message Delivered.svg",
       color: Colors.blue,
@@ -34,8 +37,7 @@ class MessageReceipts extends StatelessWidget {
     );
   }
 
-
-  Widget deliveredIcon(){
+  Widget deliveredIcon() {
     return SvgPicture.asset(
       "assets/Message Delivered.svg",
       width: 16,
@@ -44,8 +46,7 @@ class MessageReceipts extends StatelessWidget {
     );
   }
 
-
-  Widget sentIcon(){
+  Widget sentIcon() {
     return SvgPicture.asset(
       "assets/Message Sent.svg",
       width: 16,
@@ -53,5 +54,4 @@ class MessageReceipts extends StatelessWidget {
       color: const Color(0xff141414).withOpacity(0.46),
     );
   }
-
 }

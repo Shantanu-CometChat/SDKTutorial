@@ -1,5 +1,6 @@
 import 'package:cometchat/cometchat_sdk.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:sdk_tutorial/Utils/custom_toast.dart';
 import 'package:sdk_tutorial/Utils/loading_indicator.dart';
 import 'package:sdk_tutorial/Utils/slide_menu.dart';
@@ -7,6 +8,8 @@ import 'package:sdk_tutorial/pages/messages/message_list.dart';
 import 'package:badges/badges.dart';
 
 import '../Utils/item_fetcher.dart';
+import '../constants.dart';
+import 'messages/message_receipts.dart';
 
 class ConversationList extends StatefulWidget {
   const ConversationList({Key? key}) : super(key: key);
@@ -114,14 +117,12 @@ class _ConversationListState extends State<ConversationList>
   //----------------Message Listeners end----------------------------------------------
 
   refreshSingleConversation(BaseMessage message, bool isActionMessage) async {
-    // await CometChat.getConversationFromMessage(message,
-    //     onSuccess: (Conversation conversation) {
-    //   if (message.metadata != null &&
-    //       message.metadata!["incrementUnreadCount"] != null) {
-    //
-    //   }
-    //   update(conversation, isActionMessage);
-    // }, onError: (_) {});
+    await CometChat.getConversationFromMessage(message,
+        onSuccess: (Conversation conversation) {
+      if (message.metadata != null &&
+          message.metadata!["incrementUnreadCount"] != null) {}
+      update(conversation, isActionMessage);
+    }, onError: (_) {});
   }
 
   ///Update the conversation with new conversation Object matched according to conversation id ,  if not matched inserted at top
@@ -163,25 +164,25 @@ class _ConversationListState extends State<ConversationList>
         BaseMessage? lastmessage = conversation.lastMessage;
 
         //Check if receipt type is delivered
-        // if (lastmessage != null &&
-        //     lastmessage.deliveredAt == null &&
-        //     receipt.receiptType == CometChatReceiptType.delivered &&
-        //     receipt.messageId == lastmessage.id) {
-        //   lastmessage.deliveredAt = receipt.deliveredAt;
-        //   conversationList[i].lastMessage = lastmessage;
-        //   setState(() {});
-        //   break;
-        // } else if (lastmessage != null &&
-        //     lastmessage.readAt == null &&
-        //     receipt.receiptType == CometChatReceiptType.read &&
-        //     receipt.messageId == lastmessage.id) {
-        //   //if receipt type is read
-        //   lastmessage.readAt = receipt.readAt;
-        //   conversationList[i].lastMessage = lastmessage;
-        //   setState(() {});
-        //
-        //   break;
-        // }
+        if (lastmessage != null &&
+            lastmessage.deliveredAt == null &&
+            receipt.receiptType == CometChatReceiptType.delivered &&
+            receipt.messageId == lastmessage.id) {
+          lastmessage.deliveredAt = receipt.deliveredAt;
+          conversationList[i].lastMessage = lastmessage;
+          setState(() {});
+          break;
+        } else if (lastmessage != null &&
+            lastmessage.readAt == null &&
+            receipt.receiptType == CometChatReceiptType.read &&
+            receipt.messageId == lastmessage.id) {
+          //if receipt type is read
+          lastmessage.readAt = receipt.readAt;
+          conversationList[i].lastMessage = lastmessage;
+          setState(() {});
+
+          break;
+        }
       }
     }
   }
@@ -243,6 +244,47 @@ class _ConversationListState extends State<ConversationList>
         });
       }
     });
+  }
+
+  //----------- get last message text-----------
+  Widget? getLastMessage(BaseMessage? message) {
+    if (message == null) return null;
+
+    CometChat.markAsDelivered(message, onSuccess: (String res) {
+      debugPrint(res);
+    }, onError: (CometChatException e) {
+      debugPrint('$e');
+    });
+
+    return Row(
+      children: [
+        if (message.sender != null && message.sender!.uid == USERID)
+          MessageReceipts(
+            passedMessage: message,
+            showTime: false,
+          ),
+        if (message.type != CometChatMessageType.text) Text(message.type),
+        if (message.type == CometChatMessageType.text)
+          Text((message as TextMessage).text),
+      ],
+    );
+  }
+
+  //----------- last message update time in short-----------
+  String getLastMessageUpdateTime(DateTime? lastMessageTime) {
+    var formatter = DateFormat("yyyy-MM-dd");
+
+    if (lastMessageTime == null) return '';
+    DateTime now = DateTime.now();
+    if (now.difference(lastMessageTime).inSeconds < 60) {
+      return 'Just Now';
+    } else if (formatter.format(lastMessageTime) == formatter.format(now)) {
+      return DateFormat("h:mma").format(lastMessageTime);
+    } else if (now.difference(lastMessageTime).inDays == 1) {
+      return "Yesterday";
+    } else {
+      return formatter.format(lastMessageTime);
+    }
   }
 
   Widget getLoadingIndicator() {
@@ -325,22 +367,29 @@ class _ConversationListState extends State<ConversationList>
                             )
                           : Text(_name.substring(0, 2))),
                 ),
-                trailing: unreadCount != ''
-                    ? Badge(
+                trailing: Column(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    Text(getLastMessageUpdateTime(
+                        conversationList[index].updatedAt)),
+                    if (unreadCount != '')
+                      Badge(
                         toAnimate: false,
                         shape: BadgeShape.circle,
                         badgeColor: Colors.blue,
                         badgeContent: Text(unreadCount,
                             style: const TextStyle(color: Colors.white)),
                       )
-                    : null,
+                  ],
+                ),
                 title: Text(_name),
                 subtitle: typingIndicatorMap.contains(index)
-                    ? Text(
+                    ? const Text(
                         'is typing...',
                         style: TextStyle(color: Colors.blue),
                       )
-                    : null),
+                    : getLastMessage(conversationList[index].lastMessage)),
           ),
         ),
       ),

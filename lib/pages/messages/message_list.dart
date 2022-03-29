@@ -55,6 +55,12 @@ class _MessageListState extends State<MessageList>
     int _limit =30;
     CometChat.addMessageListener("listenerId", this);
 
+    if (widget.conversation.lastMessage != null &&
+        widget.conversation.lastMessage?.readAt == null) {
+      CometChat.markAsRead(widget.conversation.lastMessage!,
+          onSuccess: (String res) {}, onError: (CometChatException e) {});
+    }
+
 
     if (widget.conversation.conversationType == "user") {
       conversationWithId = (widget.conversation.conversationWith as User).uid;
@@ -96,7 +102,7 @@ class _MessageListState extends State<MessageList>
       appTitle = (widget.conversation.conversationWith as Group).name;
       _avatar = (widget.conversation.conversationWith as Group).icon;
       appSubtitle =
-          "${(widget.conversation.conversationWith as Group).membersCount.toString()} members";
+      "${(widget.conversation.conversationWith as Group).membersCount.toString()} members";
     }
 
     appBarAvatar = Hero(
@@ -252,7 +258,7 @@ class _MessageListState extends State<MessageList>
     _itemFetcher
         .fetchPreviuos(messageRequest)
         .then((List<BaseMessage> fetchedList) {
-          if (fetchedList.isEmpty) {
+      if (fetchedList.isEmpty) {
         setState(() {
           _isLoading = false;
           _hasMore = false;
@@ -309,15 +315,15 @@ class _MessageListState extends State<MessageList>
 
   editMessage(BaseMessage message, String updatedText) async {
     int matchingIndex =
-        _messageList.indexWhere((element) => (element.id == message.id));
+    _messageList.indexWhere((element) => (element.id == message.id));
 
     TextMessage editedMessage = message as TextMessage;
     editedMessage.text = updatedText;
 
     await CometChat.editMessage(editedMessage,
         onSuccess: (BaseMessage updatedMessage) {
-      _messageList[matchingIndex] = updatedMessage;
-    }, onError: (CometChatException e) {});
+          _messageList[matchingIndex] = updatedMessage;
+        }, onError: (CometChatException e) {});
 
     setState(() {});
   }
@@ -493,7 +499,7 @@ class _MessageListState extends State<MessageList>
       debugPrint("_messageList[index].type"
           " ${(_messageList[index] as CustomMessage).metadata?["@injected"]?["extensions"]?["polls"]?["results"]??""  }");
       return PollWidget(passedMessage: (_messageList[index] as CustomMessage),  conversation: widget.conversation,
-      votePoll: choosePoll,
+        votePoll: choosePoll,
       );
     }
     else {

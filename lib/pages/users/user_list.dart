@@ -31,7 +31,6 @@ class _CometChatUserListState extends State<CometChatUserList>
 
   bool isLoading = true;
   bool hasMoreUsers = true;
-  bool onsearchLoading = false;
 
   late UsersRequest usersRequest;
 
@@ -87,7 +86,6 @@ class _CometChatUserListState extends State<CometChatUserList>
           if (fetchedList.isEmpty) {
             setState(() {
               isLoading = false;
-              onsearchLoading = false;
               hasMoreUsers = false;
             });
           }
@@ -95,7 +93,6 @@ class _CometChatUserListState extends State<CometChatUserList>
           else {
             setState(() {
               isLoading = false;
-              onsearchLoading = false;
               userList.addAll(fetchedList);
             });
           }
@@ -229,18 +226,17 @@ class _CometChatUserListState extends State<CometChatUserList>
                 height: 60,
                 child: Center(
                   child: TextField(
-                    onChanged: (val) {
+                    onSubmitted: (String val) {
                       usersRequest = (UsersRequestBuilder()
                             ..limit = 30
                             ..searchKeyword = val)
                           .build();
-                      onsearchLoading = true;
                       userList = [];
                       setState(() {});
 
                       loadMoreUsers();
                     },
-                    style: TextStyle(
+                    style: const TextStyle(
                         fontWeight: FontWeight.w400,
                         color: Colors.black,
                         fontSize: 17),
@@ -268,7 +264,7 @@ class _CometChatUserListState extends State<CometChatUserList>
                   ),
                 ),
               ),
-            onsearchLoading
+            isLoading
                 ? const Center(child: CircularProgressIndicator())
                 : Expanded(
                     child: ListView.builder(

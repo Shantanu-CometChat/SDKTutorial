@@ -14,6 +14,16 @@ class UserDetails extends StatefulWidget {
 }
 
 class _UserDetailsState extends State<UserDetails> {
+  int unreadCount = 0;
+  int? lastDeliveredMessageId;
+
+  @override
+  void initState() {
+    getUnreadMessageCount();
+    getLastMessageId();
+  }
+
+  //-----Blocking user-----
   blockUser() async {
     showLoadingIndicatorDialog(context);
     List<String> uids = [];
@@ -31,6 +41,7 @@ class _UserDetailsState extends State<UserDetails> {
     Navigator.pop(context);
   }
 
+  //-----Unblocking user-----
   unblockUser() async {
     showLoadingIndicatorDialog(context);
     List<String> uids = [];
@@ -45,6 +56,42 @@ class _UserDetailsState extends State<UserDetails> {
       debugPrint("Unblocked User Unsuccessful ${e.message} ");
     });
     Navigator.pop(context);
+  }
+
+  getUnreadMessageCount() async {
+    CometChat.getUnreadMessageCount(
+        hideMessagesFromBlockedUsers: true,
+        onSuccess: (Map<String, Map<String, int>> map) {
+          Map<String, int>? groupCounts = map['user'];
+          if (groupCounts != null) {
+            unreadCount = groupCounts[widget.user.uid] ?? 0;
+            setState(() {});
+          }
+          debugPrint(map.toString());
+        },
+        onError: (e) {
+          debugPrint(e.toString());
+        });
+  }
+
+  getLastMessageId() async {
+    lastDeliveredMessageId = await CometChat.getLastDeliveredMessageId();
+    debugPrint("$lastDeliveredMessageId");
+    setState(() {});
+  }
+
+  tagConversation() {
+    String uid = widget.user.uid;
+    String conversationType = ConversationType.user;
+    List<String> tags = [];
+    tags.add("archived");
+
+    CometChat.tagConversation(uid, conversationType, tags,
+        onSuccess: (Conversation conversation) {
+      debugPrint("Conversation tagged Successfully : $conversation");
+    }, onError: (CometChatException e) {
+      debugPrint("Conversation tagging failed  : ${e.message}");
+    });
   }
 
   @override
@@ -102,6 +149,30 @@ class _UserDetailsState extends State<UserDetails> {
                       style: TextStyle(color: Colors.blue),
                     ),
                     trailing: Text(widget.user.lastActiveAt!=null?receiptFormatter.format(widget.user.lastActiveAt!): ""),
+                  )),
+            ),
+            Card(
+              child: SizedBox(
+                  height: 50,
+                  child: ListTile(
+                    title: const Text("Unread Message Count"),
+                    trailing: Text("$unreadCount"),
+                  )),
+            ),
+            Card(
+              child: SizedBox(
+                  height: 50,
+                  child: ListTile(
+                    trailing: Text('$lastDeliveredMessageId'),
+                    title: const Text("Last Delivered MessageId"),
+                  )),
+            ),
+            Card(
+              child: SizedBox(
+                  height: 50,
+                  child: ListTile(
+                    onTap: tagConversation,
+                    title: const Text("Tag Conversation"),
                   )),
             ),
             Card(
