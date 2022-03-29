@@ -53,13 +53,11 @@ class _MessageListState extends State<MessageList>
   @override
   void initState() {
     int _limit =30;
+    String? _avatar;
     CometChat.addMessageListener("listenerId", this);
+    _focus.addListener(_onFocusChange);
 
-    if (widget.conversation.lastMessage != null &&
-        widget.conversation.lastMessage?.readAt == null) {
-      CometChat.markAsRead(widget.conversation.lastMessage!,
-          onSuccess: (String res) {}, onError: (CometChatException e) {});
-    }
+    markRead();
 
 
     if (widget.conversation.conversationType == "user") {
@@ -67,11 +65,6 @@ class _MessageListState extends State<MessageList>
     } else {
       conversationWithId = (widget.conversation.conversationWith as Group).guid;
     }
-
-    _focus.addListener(_onFocusChange);
-    String? _avatar;
-
-
     if (widget.conversation.conversationType == CometChatReceiverType.user) {
       messageRequest = (MessagesRequestBuilder()
         ..uid = (widget.conversation.conversationWith as User).uid
@@ -121,6 +114,26 @@ class _MessageListState extends State<MessageList>
     _loadMore();
   }
 
+  @override
+  void dispose() {
+    super.dispose();
+    _focus.removeListener(_onFocusChange);
+    _focus.dispose();
+    CometChat.removeMessageListener(listenerId);
+  }
+
+
+  markRead(){
+
+    if (widget.conversation.lastMessage != null &&
+        widget.conversation.lastMessage?.readAt == null) {
+      CometChat.markAsRead(widget.conversation.lastMessage!,
+          onSuccess: (String res) {}, onError: (CometChatException e) {});
+    }
+
+
+  }
+
   void _onFocusChange() {
     if (_focus.hasFocus) {
       if (widget.conversation.conversationType == CometChatReceiverType.user) {
@@ -151,13 +164,6 @@ class _MessageListState extends State<MessageList>
     }
   }
 
-  @override
-  void dispose() {
-    super.dispose();
-    _focus.removeListener(_onFocusChange);
-    _focus.dispose();
-    CometChat.removeMessageListener(listenerId);
-  }
 
   @override
   void onTextMessageReceived(TextMessage textMessage) async {
