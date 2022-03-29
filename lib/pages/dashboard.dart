@@ -6,6 +6,8 @@ import 'package:sdk_tutorial/pages/group/group_list.dart';
 import 'package:sdk_tutorial/pages/users/update_user.dart';
 import 'package:sdk_tutorial/pages/users/user_list.dart';
 
+import '../Utils/loading_indicator.dart';
+
 class DashBoard extends StatelessWidget {
   const DashBoard({Key? key}) : super(key: key);
 
@@ -38,9 +40,11 @@ class DashBoard extends StatelessWidget {
                                 )));
                   }
                 } else if (value == 'Logout') {
+                  showLoadingIndicatorDialog(context);
                   await CometChat.logout(
                       onError: (CometChatException exception) {},
                       onSuccess: (Map<String, Map<String, int>> message) {});
+                  Navigator.of(context).pop();
                   Navigator.of(context).pop();
                   USERID = "";
                 }
@@ -66,6 +70,7 @@ class DashBoard extends StatelessWidget {
                   elevation: 5,
                   child: Center(
                     child: ListTile(
+                      leading: Icon(Icons.chat),
                       onTap: () {
                         Navigator.push(
                             context,
@@ -86,6 +91,7 @@ class DashBoard extends StatelessWidget {
                   elevation: 5,
                   child: Center(
                     child: ListTile(
+                      leading: Icon(Icons.people),
                       onTap: () {
                         Navigator.push(
                             context,
@@ -107,6 +113,7 @@ class DashBoard extends StatelessWidget {
                   elevation: 5,
                   child: Center(
                     child: ListTile(
+                      leading: Icon(Icons.groups),
                       onTap: () {
                         Navigator.push(
                             context,

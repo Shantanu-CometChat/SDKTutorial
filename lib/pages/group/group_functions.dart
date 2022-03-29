@@ -1,8 +1,12 @@
 import 'package:cometchat/cometchat_sdk.dart';
 import 'package:flutter/material.dart';
+import 'package:sdk_tutorial/Utils/custom_toast.dart';
+import 'package:sdk_tutorial/pages/conversation_list.dart';
 import 'package:sdk_tutorial/pages/group/group_members.dart';
 import 'package:sdk_tutorial/pages/group/update_group.dart';
 import 'package:sdk_tutorial/pages/users/user_list.dart';
+
+import '../../Utils/loading_indicator.dart';
 
 class GroupFunctions extends StatefulWidget {
   const GroupFunctions(
@@ -43,11 +47,15 @@ class _GroupFunctionsState extends State<GroupFunctions> {
   }
 
   leaveGroup() async {
+    showLoadingIndicatorDialog(context);
+
     await CometChat.leaveGroup(widget.groupId, onSuccess: (String message) {
       debugPrint("Group Left  Successfully : $message");
+      showCustomToast(msg: "Group Left");
     }, onError: (CometChatException e) {
       debugPrint("Group Left failed  : ${e.message}");
     });
+    Navigator.pop(context);
   }
 
   joinGroup() async {
@@ -61,11 +69,15 @@ class _GroupFunctionsState extends State<GroupFunctions> {
   }
 
   deleteGroup() async {
+    showLoadingIndicatorDialog(context);
     await CometChat.deleteGroup(widget.groupId, onSuccess: (String message) {
       debugPrint("Deleted Group Successfully : $message ");
+      showCustomToast(msg: "Group Deleted");
     }, onError: (CometChatException e) {
+      showCustomToast(msg: 'Something Went Wrong');
       debugPrint("Delete Group failed with exception: ${e.message}");
     });
+    Navigator.pop(context);
   }
 
   transferOwnerShipOfGroup() async {

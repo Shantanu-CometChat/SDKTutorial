@@ -1,5 +1,6 @@
 import 'package:cometchat/cometchat_sdk.dart';
 import 'package:flutter/material.dart';
+import 'package:sdk_tutorial/Utils/custom_toast.dart';
 
 class GroupMembers extends StatefulWidget {
   const GroupMembers(
@@ -206,10 +207,12 @@ class _GroupMembersState extends State<GroupMembers> {
         onSuccess: (String message) {
           debugPrint("Group Member Scope Changed  Successfully : $message");
           userList[index].scope = scope;
+          showCustomToast(msg: "Updated");
           setState(() {});
         },
         onError: (CometChatException e) {
           debugPrint("Group Member Scope Change failed  : ${e.message}");
+          showCustomToast(msg: "Something went wrong", background: Colors.red);
         });
   }
 

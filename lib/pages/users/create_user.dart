@@ -1,6 +1,8 @@
 import 'package:cometchat/cometchat_sdk.dart';
 import 'package:flutter/material.dart';
 
+import '../../Utils/custom_toast.dart';
+import '../../Utils/loading_indicator.dart';
 import '../../constants.dart';
 
 class CreateUser extends StatefulWidget {
@@ -19,7 +21,9 @@ class _CreateUserState extends State<CreateUser> {
   TextEditingController roleTextController = TextEditingController();
   TextEditingController statusMessageTextController = TextEditingController();
 
-  createUser() {
+  createUser() async {
+    showLoadingIndicatorDialog(context);
+
     String authKey = CometChatAuthConstants.authKey;
 
     User user = User(
@@ -31,11 +35,15 @@ class _CreateUserState extends State<CreateUser> {
       // statusMessage: statusMessageTextController.text
     );
 
-    CometChat.createUser(user, authKey, onSuccess: (User user) {
+    await CometChat.createUser(user, authKey, onSuccess: (User user) {
       debugPrint("Create User successful $user");
+      showCustomToast(msg: 'User Created Successfully');
     }, onError: (CometChatException e) {
       debugPrint("Create User Failed with exception ${e.message}");
+      showCustomToast(msg: 'Something went Wrong');
     });
+
+    Navigator.pop(context);
   }
 
   @override

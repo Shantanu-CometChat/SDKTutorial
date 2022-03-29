@@ -1,5 +1,8 @@
 import 'package:cometchat/cometchat_sdk.dart';
 import 'package:flutter/material.dart';
+import 'package:sdk_tutorial/Utils/loading_indicator.dart';
+
+import '../../Utils/custom_toast.dart';
 
 class CreateGroup extends StatefulWidget {
   const CreateGroup({Key? key}) : super(key: key);
@@ -139,6 +142,7 @@ class _CreateGroupState extends State<CreateGroup> {
                       setState(() {
                         isLoading = true;
                       });
+                      showLoadingIndicatorDialog(context);
                       Group? group = await CometChat.createGroup(
                           _GUID, _groupName, _groupType,
                           password: _password,
@@ -147,16 +151,15 @@ class _CreateGroupState extends State<CreateGroup> {
                       setState(() {
                         isLoading = false;
                       });
+                      Navigator.pop(context);
 
                       if (group == null) {
-                        ScaffoldMessenger.of(context)
-                            .showSnackBar(const SnackBar(
-                          content: Text("Something Went Wrong"),
-                        ));
+                        showCustomToast(
+                            msg: 'Something Went Wrong',
+                            background: Colors.red);
+                      } else {
+                        showCustomToast(msg: "Group Created");
                       }
-                      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-                        content: Text("Group Created"),
-                      ));
                     }
                   },
                   child: Text("Create")),

@@ -1,5 +1,7 @@
 import 'package:cometchat/cometchat_sdk.dart';
 import 'package:flutter/material.dart';
+import 'package:sdk_tutorial/Utils/custom_toast.dart';
+import 'package:sdk_tutorial/Utils/loading_indicator.dart';
 import 'package:sdk_tutorial/Utils/slide_menu.dart';
 import 'package:sdk_tutorial/pages/messages/message_list.dart';
 import 'package:badges/badges.dart';
@@ -199,6 +201,7 @@ class _ConversationListState extends State<ConversationList>
   }
 
   void deleteConversation(int index) async {
+    showLoadingIndicatorDialog(context);
     late String conversationWith;
     late String conversationType;
     if (conversationList[index].conversationType.toLowerCase() ==
@@ -214,9 +217,11 @@ class _ConversationListState extends State<ConversationList>
 
     await CometChat.deleteConversation(conversationWith, conversationType,
         onSuccess: (_) {
+      showCustomToast(msg: "Chats Deleted");
       conversationList.removeAt(index);
     }, onError: (_) {});
 
+    Navigator.pop(context);
     setState(() {});
   }
 

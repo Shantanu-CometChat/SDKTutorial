@@ -1,6 +1,8 @@
 import 'package:cometchat/cometchat_sdk.dart';
 import 'package:flutter/material.dart';
 
+import '../../Utils/custom_toast.dart';
+import '../../Utils/loading_indicator.dart';
 import '../../constants.dart';
 
 class UpdateUser extends StatefulWidget {
@@ -37,7 +39,8 @@ class _UpdateUserState extends State<UpdateUser> {
   }
 
   //-----updating logged in user-----
-  updateLoggedInUser() {
+  updateLoggedInUser() async {
+    showLoadingIndicatorDialog(context);
     User user = User(
         name: nameTextController.text,
         avatar: avatarTextController.text,
@@ -45,15 +48,21 @@ class _UpdateUserState extends State<UpdateUser> {
         role: roleTextController.text,
         statusMessage: statusMessageTextController.text);
 
-    CometChat.updateCurrentUserDetails(user, onSuccess: (User updatedUser) {
+    await CometChat.updateCurrentUserDetails(user,
+        onSuccess: (User updatedUser) {
       debugPrint("Updated User: $updatedUser");
+      showCustomToast(msg: 'Updated Successfully');
     }, onError: (CometChatException e) {
       debugPrint("Updated User exception : ${e.message}");
+      showCustomToast(
+          msg: 'Something went wrong', background: Colors.redAccent);
     });
+    Navigator.pop(context);
   }
 
   //----updating any users using api key----
-  updateUser() {
+  updateUser() async {
+    showLoadingIndicatorDialog(context);
     User user = User(
         uid: widget.user.uid,
         name: nameTextController.text,
@@ -64,11 +73,14 @@ class _UpdateUserState extends State<UpdateUser> {
 
     String apiKey = CometChatAuthConstants.apiKey;
 
-    CometChat.updateUser(user, apiKey, onSuccess: (User updatedUser) {
+    await CometChat.updateUser(user, apiKey, onSuccess: (User updatedUser) {
       debugPrint("Updated User: $updatedUser");
+      showCustomToast(msg: 'Updated Successfully');
     }, onError: (CometChatException e) {
       debugPrint("Updated User exception : ${e.message}");
     });
+
+    Navigator.pop(context);
   }
 
   @override

@@ -96,7 +96,7 @@ class _MessageListState extends State<MessageList>
       appTitle = (widget.conversation.conversationWith as Group).name;
       _avatar = (widget.conversation.conversationWith as Group).icon;
       appSubtitle =
-      "${(widget.conversation.conversationWith as Group).membersCount.toString()} members";
+          "${(widget.conversation.conversationWith as Group).membersCount.toString()} members";
     }
 
     appBarAvatar = Hero(
@@ -379,6 +379,21 @@ class _MessageListState extends State<MessageList>
     setState(() {});
   }
 
+  editMessage(BaseMessage message, String updatedText) async {
+    int matchingIndex =
+        _messageList.indexWhere((element) => (element.id == message.id));
+
+    TextMessage editedMessage = message as TextMessage;
+    editedMessage.text = updatedText;
+
+    await CometChat.editMessage(editedMessage,
+        onSuccess: (BaseMessage updatedMessage) {
+      _messageList[matchingIndex] = updatedMessage;
+    }, onError: (CometChatException e) {});
+
+    setState(() {});
+  }
+
   unblockUser() async {
     if (widget.conversation.conversationType == CometChatReceiverType.user) {
       final String uid = (widget.conversation.conversationWith as User).uid;
@@ -648,7 +663,6 @@ class _MessageListState extends State<MessageList>
   }
 
   Widget getMessageWidget(int index) {
-
     if (_messageList[index] is MediaMessage) {
       return MediaMessageWidget(
         passedMessage: (_messageList[index] as MediaMessage),
@@ -658,6 +672,7 @@ class _MessageListState extends State<MessageList>
         passedMessage: (_messageList[index] as TextMessage),
         deleteFunction: deleteMessage,
         conversation: widget.conversation,
+        editFunction: editMessage,
       );
     } else if (_messageList[index] is action_alias.Action) {
       return ActionWidget(
