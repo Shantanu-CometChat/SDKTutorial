@@ -1,5 +1,6 @@
 import 'package:cometchat/cometchat_sdk.dart';
 import 'package:flutter/material.dart';
+import 'package:sdk_tutorial/constants.dart';
 
 import '../../Utils/custom_toast.dart';
 import '../../Utils/loading_indicator.dart';
@@ -100,15 +101,7 @@ class _UserDetailsState extends State<UserDetails> {
                       "Last Active at",
                       style: TextStyle(color: Colors.blue),
                     ),
-                    trailing: Text(widget.user.lastActiveAt.toString()),
-                  )),
-            ),
-            Card(
-              child: SizedBox(
-                  height: 50,
-                  child: ListTile(
-                    title: const Text("Has Blocked Me"),
-                    trailing: Text("${widget.user.hasBlockedMe}"),
+                    trailing: Text(widget.user.lastActiveAt!=null?receiptFormatter.format(widget.user.lastActiveAt!): ""),
                   )),
             ),
             Card(

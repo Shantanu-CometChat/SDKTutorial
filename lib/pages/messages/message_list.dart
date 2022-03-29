@@ -16,7 +16,6 @@ import 'package:sdk_tutorial/pages/messages/message_widget.dart';
 import 'package:sdk_tutorial/pages/messages/poll_widget.dart';
 import '../users/user_details.dart';
 import '../../Utils/item_fetcher.dart';
-// import 'package:mime/mime.dart';
 
 class MessageList extends StatefulWidget {
   const MessageList({
@@ -45,8 +44,6 @@ class _MessageListState extends State<MessageList>
   String appSubtitle = "";
   Widget appBarAvatar = Container();
   final formKey = GlobalKey<FormState>();
-
-  late BannedGroupMembersRequest bannedGroupMembersRequest;
   String messageText = "";
   bool typing = false;
   final FocusNode _focus = FocusNode();
@@ -55,7 +52,10 @@ class _MessageListState extends State<MessageList>
 
   @override
   void initState() {
-    int limit = 2;
+    int _limit =30;
+    CometChat.addMessageListener("listenerId", this);
+
+
     if (widget.conversation.conversationType == "user") {
       conversationWithId = (widget.conversation.conversationWith as User).uid;
     } else {
@@ -65,11 +65,11 @@ class _MessageListState extends State<MessageList>
     _focus.addListener(_onFocusChange);
     String? _avatar;
 
-    CometChat.addMessageListener("listenerId", this);
+
     if (widget.conversation.conversationType == CometChatReceiverType.user) {
       messageRequest = (MessagesRequestBuilder()
         ..uid = (widget.conversation.conversationWith as User).uid
-        ..limit = limit
+        ..limit = _limit
         ..hideDeleted = true
         ..categories = [
           CometChatMessageCategory.action,
@@ -85,7 +85,7 @@ class _MessageListState extends State<MessageList>
     } else {
       messageRequest = (MessagesRequestBuilder()
         ..guid = (widget.conversation.conversationWith as Group).guid
-        ..limit = limit
+        ..limit = _limit
         ..hideDeleted = true
         ..categories = [
           CometChatMessageCategory.action,
@@ -118,28 +118,28 @@ class _MessageListState extends State<MessageList>
   void _onFocusChange() {
     if (_focus.hasFocus) {
       if (widget.conversation.conversationType == CometChatReceiverType.user) {
-        User tempEntity = widget.conversation.conversationWith as User;
+        User _user = widget.conversation.conversationWith as User;
         CometChat.startTyping(
-          receaverUid: tempEntity.uid,
+          receaverUid: _user.uid,
           receiverType: CometChatReceiverType.user,
         );
       } else {
-        Group startTyping = widget.conversation.conversationWith as Group;
+        Group _group = widget.conversation.conversationWith as Group;
         CometChat.startTyping(
-          receaverUid: startTyping.guid,
+          receaverUid: _group.guid,
           receiverType: CometChatReceiverType.group,
         );
       }
     } else if (!_focus.hasFocus) {
       if (widget.conversation.conversationType == CometChatReceiverType.user) {
-        User tempEntity = widget.conversation.conversationWith as User;
+        User _user = widget.conversation.conversationWith as User;
         CometChat.endTyping(
-            receaverUid: tempEntity.uid,
+            receaverUid: _user.uid,
             receiverType: CometChatReceiverType.user);
       } else {
-        Group tempEntity = widget.conversation.conversationWith as Group;
+        Group _group = widget.conversation.conversationWith as Group;
         CometChat.endTyping(
-            receaverUid: tempEntity.guid,
+            receaverUid: _group.guid,
             receiverType: CometChatReceiverType.group);
       }
     }
@@ -159,6 +159,26 @@ class _MessageListState extends State<MessageList>
     setState(() {});
     CometChat.markAsRead(textMessage, onSuccess: (_) {}, onError: (_) {});
   }
+
+
+  @override
+  void onMediaMessageReceived(MediaMessage mediaMessage) {
+    if (mounted == true) {
+      _messageList.insert(0, mediaMessage);
+      setState(() {});
+    }
+    CometChat.markAsRead(mediaMessage, onSuccess: (_) {}, onError: (_) {});
+  }
+
+
+  @override
+  void onCustomMessageReceived(CustomMessage customMessage) {
+    _messageList.insert(0, customMessage);
+    setState(() {});
+  }
+
+
+
 
   @override
   void onTypingStarted(TypingIndicator typingIndicator) {
@@ -180,21 +200,6 @@ class _MessageListState extends State<MessageList>
     });
   }
 
-  @override
-  void onMediaMessageReceived(MediaMessage mediaMessage) {
-    if (mounted == true) {
-      _messageList.insert(0, mediaMessage);
-      setState(() {});
-    }
-    CometChat.markAsRead(mediaMessage, onSuccess: (_) {}, onError: (_) {});
-  }
-
-
-  @override
-  void onCustomMessageReceived(CustomMessage customMessage) {
-    _messageList.insert(0, customMessage);
-    setState(() {});
-  }
 
   @override
   void onMessagesDelivered(MessageReceipt messageReceipt) {
@@ -222,7 +227,6 @@ class _MessageListState extends State<MessageList>
 
   @override
   void onMessageEdited(BaseMessage message) {
-    // TODO: implement onMessageEdited
     if (mounted == true) {
       for (int count = 0; count < _messageList.length; count++) {
         if (message.id == _messageList[count].id) {
@@ -238,19 +242,11 @@ class _MessageListState extends State<MessageList>
   void onMessageDeleted(BaseMessage message) {
     int matchingIndex =
     _messageList.indexWhere((element) => (element.id == message.id));
-
     _messageList.removeAt(matchingIndex);
     setState(() {});
   }
 
-
-  @override
-  void onGroupMemberLeft(
-      action_alias.Action action, User leftUser, Group leftGroup) {
-    print("Group Member left");
-  }
-
-  // Triggers fecth() and then add new items or change _hasMore flag
+  // Triggers fetch() and then add new items or change _hasMore flag
   void _loadMore() {
     _isLoading = true;
     _itemFetcher
@@ -264,10 +260,6 @@ class _MessageListState extends State<MessageList>
       } else {
         setState(() {
           _isLoading = false;
-          for (var item in fetchedList) {
-            print(
-                " Before Adding to list ${item.id} ${item.type} ${item.category} ${(item is TextMessage) ? "start${item.text}end" : "sss"}");
-          }
           _messageList.addAll(fetchedList.reversed);
         });
       }
@@ -294,79 +286,15 @@ class _MessageListState extends State<MessageList>
 
     CometChat.callExtension("polls", "POST", "/v2/create", body, onSuccess: (_){
 
-      print("Success");
+      debugPrint("Success");
     }, onError: (CometChatException e){
-      print(e.toString());
 
     });
 
 
   }
 
-  markRead(BaseMessage message) {
-    CometChat.markAsRead(message, onSuccess: (String unused) {
-      debugPrint("markAsRead : $unused ");
-      reinitiateList();
-    }, onError: (CometChatException e) {
-      debugPrint("markAsRead unsuccessful : ${e.message} ");
-    });
-  }
 
-  markDelivered(BaseMessage message) {
-    CometChat.markAsDelivered(message, onSuccess: (String unused) {
-      debugPrint("markAsDelivered : $unused ");
-      reinitiateList();
-    }, onError: (CometChatException e) {
-      debugPrint("markAsDelivered unsuccessful : ${e.message} ");
-    });
-  }
-
-  reinitiateList() {
-    if (widget.conversation.conversationType == CometChatReceiverType.user) {
-      messageRequest = (MessagesRequestBuilder()
-        ..uid = (widget.conversation.conversationWith as User).uid)
-          .build();
-    } else {
-      messageRequest = (MessagesRequestBuilder()
-        ..guid = (widget.conversation.conversationWith as Group).guid)
-          .build();
-    }
-
-    _messageList.clear();
-    _isLoading = true;
-    _hasMore = true;
-    _loadMore();
-    setState(() {});
-  }
-
-  getUnreadMessageCount(bool hideBlockedUser) async {
-    CometChat.getUnreadMessageCount(
-        hideMessagesFromBlockedUsers: hideBlockedUser,
-        onSuccess: (Map<String, Map<String, int>> map) {
-          debugPrint(map.toString());
-        },
-        onError: (e) {
-          debugPrint(e.toString());
-        });
-  }
-
-  Future<void> blockUser() async {
-    if (widget.conversation.conversationType == CometChatReceiverType.user) {
-      final String uid = (widget.conversation.conversationWith as User).uid;
-
-      await CometChat.blockUser([uid], onSuccess: (Map<String, dynamic> map) {
-        debugPrint("Blocked User Successfully $map ");
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-          content: Text("User Blocked"),
-        ));
-      }, onError: (CometChatException e) {
-        debugPrint("Blocked User Unsuccessful ${e.message} ");
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content: Text("${e.message}"),
-        ));
-      });
-    }
-  }
 
   deleteMessage(BaseMessage message) async {
     int matchingIndex =
@@ -394,128 +322,24 @@ class _MessageListState extends State<MessageList>
     setState(() {});
   }
 
-  unblockUser() async {
-    if (widget.conversation.conversationType == CometChatReceiverType.user) {
-      final String uid = (widget.conversation.conversationWith as User).uid;
-      await CometChat.unblockUser([uid],
-          onSuccess: (onSuccess) {}, onError: (error) {});
-    }
-  }
 
-  deleteConersation() async {
-    String conversationWith = "";
-    if (widget.conversation.conversationType == CometChatReceiverType.user) {
-      conversationWith = (widget.conversation.conversationWith as User).uid;
-    } else {
-      conversationWith = (widget.conversation.conversationWith as Group).guid;
-    }
-    await CometChat.deleteConversation(
-        conversationWith, widget.conversation.conversationType,
-        onSuccess: (onSuccess) {}, onError: (error) {});
-  }
 
-  getGroup() {
-    if (widget.conversation.conversationType == CometChatReceiverType.group) {
-      String conversationWith =
-          (widget.conversation.conversationWith as Group).guid;
-      CometChat.getGroup(conversationWith, onSuccess: (Group group) {
-        debugPrint("Fetched Group Successfully : $group ");
-      }, onError: (CometChatException e) {
-        debugPrint("Group Request failed with exception: ${e.message}");
-      });
-    }
-  }
-
-  getOnlineGroupMemberCount() {
-    if (widget.conversation.conversationType == CometChatReceiverType.group) {
-      String conversationWith =
-          (widget.conversation.conversationWith as Group).guid;
-      CometChat.getOnlineGroupMemberCount([conversationWith],
-          onSuccess: (Map<String, int> count) {
-            debugPrint("Fetched Online Group Member Count Successfully : $count ");
-          }, onError: (CometChatException e) {
-            debugPrint("Online Group Member  failed with exception: ${e.message}");
-          });
-    }
-  }
-
-  leaveGroup() {
-    if (widget.conversation.conversationType == CometChatReceiverType.group) {
-      String guid = (widget.conversation.conversationWith as Group).guid;
-      CometChat.leaveGroup(guid, onSuccess: (String message) {
-        debugPrint("Group Left  Successfully : $message");
-      }, onError: (CometChatException e) {
-        debugPrint("Group Left failed  : ${e.message}");
-      });
-    }
-  }
-
-  transferGroupOwnership() {
-    if (widget.conversation.conversationType == CometChatReceiverType.group) {
-      String conversationWith =
-          (widget.conversation.conversationWith as Group).guid;
-      String uid = "superhero1";
-      String guid = conversationWith;
-      CometChat.transferGroupOwnership(
-          guid: guid,
-          uid: uid,
-          onSuccess: (String message) {
-            debugPrint("Owner Transferred  Successfully : $message");
-          },
-          onError: (CometChatException e) {
-            debugPrint("Owner Transferred failed  : ${e.message}");
-          });
-    }
-  }
 
   addMessage() {
     CometChat.addMessageListener("listenerId", MessageListener());
   }
 
-  tagConversation() {
-    String conversationWith = ""; //id of the user/group
-    String conversationType = "";
-    List<String> tags = [];
-    tags.add("archived");
-    if (widget.conversation.conversationType == CometChatReceiverType.group) {
-      conversationWith = (widget.conversation.conversationWith as Group).guid;
-    } else {
-      conversationWith = (widget.conversation.conversationWith as User).uid;
-    }
-    conversationType = widget.conversation.conversationType;
 
-    CometChat.tagConversation(conversationWith, conversationType, tags,
-        onSuccess: (Conversation conversation) {
-          debugPrint("Conversation tagged Successfully : $conversation");
-        }, onError: (CometChatException e) {
-          debugPrint("Conversation tagging failed  : ${e.message}");
-        });
+  choosePoll(String vote,  String id){
+    Map<String, dynamic> body = {
+      "vote":vote,
+      "id": id
+    };
+    CometChat.callExtension("polls", "POST", "/v2/vote", body, onSuccess: (Map<String, dynamic> map){
+    }, onError: (e){});
+
   }
 
-  getConversation() {
-    String conversationWith = "superhero1"; //id of the user/group
-    String conversationType = "user";
-    CometChat.getConversation(conversationWith, conversationType,
-        onSuccess: (Conversation conversation) {
-          debugPrint("Fetch Conversation Successfully : $conversation");
-        }, onError: (CometChatException e) {
-          debugPrint("Fetch Conversation  failed  : ${e.message}");
-        });
-  }
-
-  getLastMessageId() async {
-    int? ab = await CometChat.getLastDeliveredMessageId();
-    debugPrint("$ab");
-  }
-
-  Future<void> deleteGroup() async {
-    String guid = "";
-    return await CometChat.deleteGroup(guid, onSuccess: (String message) {
-      debugPrint("Deleted Group Successfully : $message ");
-    }, onError: (CometChatException e) {
-      debugPrint("Delete Group failed with exception: ${e.message}");
-    });
-  }
 
   Widget getTypingIndicator() {
     return Row(
@@ -531,18 +355,7 @@ class _MessageListState extends State<MessageList>
     );
   }
 
-  choosePoll(String vote,  String id){
-    Map<String, dynamic> body = {
-      "vote":vote,
-      "id": id
-    };
 
-    CometChat.callExtension("polls", "POST", "/v2/vote", body, onSuccess: (Map<String, dynamic> map){
-      print("Result ${map}");
-    }, onError: (e){print(e);});
-
-
-  }
 
   Widget getMessageComposer(BuildContext context) {
     return Padding(
@@ -601,9 +414,6 @@ class _MessageListState extends State<MessageList>
                                   title: "Polls",
                                   icon: Icons.list
                               )
-
-
-
                             ]
                         );
 
@@ -703,7 +513,7 @@ class _MessageListState extends State<MessageList>
     }
 
     FilePickerResult? result =
-    await FilePicker.platform.pickFiles(type: FileType.media);
+    await FilePicker.platform.pickFiles(type: FileType.any);
 
     if (result != null && result.files.single.path != null) {
       filePath = result.files.single.path!;
@@ -779,17 +589,17 @@ class _MessageListState extends State<MessageList>
       appBar: AppBar(
         titleSpacing: 0,
         title: ListTile(
-          contentPadding: EdgeInsets.all(0),
+          contentPadding: const EdgeInsets.all(0),
           leading: appBarAvatar,
           subtitle: Text(
             appSubtitle,
-            style: TextStyle(color: Colors.white),
+            style: const TextStyle(color: Colors.white),
           ),
           title: Text(
             appTitle,
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
-            style: TextStyle(
+            style: const TextStyle(
                 color: Colors.white, fontSize: 17, fontWeight: FontWeight.w500),
           ),
         ),
@@ -817,64 +627,7 @@ class _MessageListState extends State<MessageList>
                           )));
                 }
               },
-              child: Icon(Icons.info_outline)),
-          PopupMenuButton<int>(
-            onSelected: (item) {
-              switch (item) {
-                case 0:
-                  blockUser();
-                  break;
-
-                case 2:
-                  getUnreadMessageCount(true);
-                  break;
-
-                case 5:
-                  unblockUser();
-                  break;
-                case 7:
-                  getGroup();
-                  break;
-                case 9:
-                  getOnlineGroupMemberCount();
-                  break;
-                case 15:
-                  leaveGroup();
-                  break;
-                case 16:
-                  transferGroupOwnership();
-                  break;
-                case 21:
-                  getLastMessageId();
-                  break;
-                case 22:
-                  tagConversation();
-                  break;
-                default:
-                  debugPrint("No action defined");
-                  break;
-              }
-            },
-            itemBuilder: (context) => [
-              const PopupMenuItem<int>(value: 0, child: Text('Block')),
-              const PopupMenuItem<int>(value: 2, child: Text('unread Count')),
-              const PopupMenuItem<int>(value: 5, child: Text('Unblock user')),
-              const PopupMenuItem<int>(value: 7, child: Text('getGroup')),
-              const PopupMenuItem<int>(
-                  value: 9, child: Text('getOnlineGroupMemberCount')),
-              const PopupMenuItem<int>(value: 15, child: Text('Leave Group')),
-              const PopupMenuItem<int>(
-                  value: 16, child: Text('transferGroupOwnership')),
-              const PopupMenuItem<int>(
-                  value: 20, child: Text('Send Custom Message')),
-              const PopupMenuItem<int>(
-                  value: 21, child: Text('get Last Message id')),
-              const PopupMenuItem<int>(
-                  value: 22, child: Text('Tag Conversation')),
-              const PopupMenuItem<int>(
-                  value: 23, child: Text('get Conversation')),
-            ],
-          ),
+              child: const Icon(Icons.info_outline)),
         ],
       ),
       body: SafeArea(
