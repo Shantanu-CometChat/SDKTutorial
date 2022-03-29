@@ -449,11 +449,7 @@ class _MessageListState extends State<MessageList>
                           iconSize: 24,
                           padding: const EdgeInsets.all(0),
                           constraints: const BoxConstraints(),
-                          icon: SvgPicture.asset(
-                            "assets/Sticker.svg",
-                            width: 24,
-                            height: 24,
-                          ),
+                          icon: Icon(Icons.attachment, size: 24,),
                           onPressed: sendMediaMessage //do something,
                       ),
                       const SizedBox(
@@ -502,8 +498,6 @@ class _MessageListState extends State<MessageList>
       );
 
     }else if ( (_messageList[index] is CustomMessage ) && _messageList[index].type =="extension_poll" ) {
-      debugPrint("_messageList[index].type"
-          " ${(_messageList[index] as CustomMessage).metadata?["@injected"]?["extensions"]?["polls"]?["results"]??""  }");
       return PollWidget(passedMessage: (_messageList[index] as CustomMessage),  conversation: widget.conversation,
         votePoll: choosePoll,
       );
