@@ -29,7 +29,8 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  cometchat: ^3.0.0-beta.3
+  cometchat:
+    path: ../../Testing again/cometchat-pro-flutter-wrapper
   file_picker:
   image_picker:
   mime: ^1.0.1

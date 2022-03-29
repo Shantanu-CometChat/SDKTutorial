@@ -53,9 +53,9 @@ packages:
   cometchat:
     dependency: "direct main"
     description:
-      name: cometchat
-      url: "https://pub.dartlang.org"
-    source: hosted
+      path: "../../Testing again/cometchat-pro-flutter-wrapper"
+      relative: true
+    source: path
     version: "3.0.0-beta.3"
   cross_file:
     dependency: transitive

@@ -8,10 +8,12 @@ import 'package:sdk_tutorial/constants.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:sdk_tutorial/pages/cometchat_action_sheet/action_item.dart';
 import 'package:sdk_tutorial/pages/cometchat_action_sheet/cometchat_action_sheet.dart';
+import 'package:sdk_tutorial/pages/extensions/create_poll.dart';
 import 'package:sdk_tutorial/pages/group/group_functions.dart';
 import 'package:sdk_tutorial/pages/messages/action_widget.dart';
 import 'package:sdk_tutorial/pages/messages/media_message_widget.dart';
 import 'package:sdk_tutorial/pages/messages/message_widget.dart';
+import 'package:sdk_tutorial/pages/messages/poll_widget.dart';
 import '../users/user_details.dart';
 import '../../Utils/item_fetcher.dart';
 // import 'package:mime/mime.dart';
@@ -49,7 +51,6 @@ class _MessageListState extends State<MessageList>
   bool typing = false;
   final FocusNode _focus = FocusNode();
   String conversationWithId = "";
-  int activeParentMessageId = 103;
 
 
   @override
@@ -69,7 +70,14 @@ class _MessageListState extends State<MessageList>
       messageRequest = (MessagesRequestBuilder()
         ..uid = (widget.conversation.conversationWith as User).uid
         ..limit = limit
-        ..hideDeleted = true)
+        ..hideDeleted = true
+        ..categories = [
+          CometChatMessageCategory.action,
+          CometChatMessageCategory.message,
+          CometChatMessageCategory.custom
+        ]
+
+      )
           .build();
       appTitle = (widget.conversation.conversationWith as User).name;
       _avatar = (widget.conversation.conversationWith as User).avatar;
@@ -81,7 +89,8 @@ class _MessageListState extends State<MessageList>
         ..hideDeleted = true
         ..categories = [
           CometChatMessageCategory.action,
-          CometChatMessageCategory.message
+          CometChatMessageCategory.message,
+          CometChatMessageCategory.custom
         ])
           .build();
       appTitle = (widget.conversation.conversationWith as Group).name;
@@ -180,6 +189,13 @@ class _MessageListState extends State<MessageList>
     CometChat.markAsRead(mediaMessage, onSuccess: (_) {}, onError: (_) {});
   }
 
+
+  @override
+  void onCustomMessageReceived(CustomMessage customMessage) {
+    _messageList.insert(0, customMessage);
+    setState(() {});
+  }
+
   @override
   void onMessagesDelivered(MessageReceipt messageReceipt) {
     for (int i = 0; i < _messageList.length; i++) {
@@ -227,15 +243,6 @@ class _MessageListState extends State<MessageList>
     setState(() {});
   }
 
-  @override
-  void onCustomMessageReceived(CustomMessage customMessage) {
-    // TODO: implement onCustomMessageReceived
-    debugPrint("Custom message received successfully: $customMessage");
-
-    if (customMessage.parentMessageId == activeParentMessageId) {
-      debugPrint("Media message received successfully: $customMessage");
-    }
-  }
 
   @override
   void onGroupMemberLeft(
@@ -265,6 +272,35 @@ class _MessageListState extends State<MessageList>
         });
       }
     });
+  }
+
+  createPoll(String question , List<String> options){
+    Map<String,dynamic> body = {};
+    late String receiverID;
+    late String receiverType;
+
+    if (widget.conversation.conversationType == "user") {
+      receiverID = (widget.conversation.conversationWith as User).uid;
+      receiverType = CometChatConversationType.user;
+    } else {
+      receiverID = (widget.conversation.conversationWith as Group).guid;
+      receiverType = CometChatConversationType.group;
+    }
+
+    body["question"] = question;
+    body["options"] = options;
+    body["receiver"]  = receiverID;
+    body["receiverType"] = receiverType;
+
+    CometChat.callExtension("polls", "POST", "/v2/create", body, onSuccess: (_){
+
+      print("Success");
+    }, onError: (CometChatException e){
+      print(e.toString());
+
+    });
+
+
   }
 
   markRead(BaseMessage message) {
@@ -480,6 +516,19 @@ class _MessageListState extends State<MessageList>
     );
   }
 
+  choosePoll(String vote,  String id){
+    Map<String, dynamic> body = {
+      "vote":vote,
+      "id": id
+    };
+
+    CometChat.callExtension("polls", "POST", "/v2/vote", body, onSuccess: (Map<String, dynamic> map){
+      print("Result ${map}");
+    }, onError: (e){print(e);});
+
+
+  }
+
   Widget getMessageComposer(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.all(8.0),
@@ -537,8 +586,21 @@ class _MessageListState extends State<MessageList>
                                   title: "Polls",
                                   icon: Icons.list
                               )
+
+
+
                             ]
                         );
+
+                        if(item!=null && item.id==1){
+                          Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) =>  CreatePoll(
+                                    pollFunc: createPoll,
+                                  )));
+                        }
+
                       } //do something,
                   ),
 
@@ -586,6 +648,7 @@ class _MessageListState extends State<MessageList>
   }
 
   Widget getMessageWidget(int index) {
+
     if (_messageList[index] is MediaMessage) {
       return MediaMessageWidget(
         passedMessage: (_messageList[index] as MediaMessage),
@@ -600,7 +663,15 @@ class _MessageListState extends State<MessageList>
       return ActionWidget(
         passedMessage: (_messageList[index] as action_alias.Action),
       );
-    } else {
+
+    }else if ( (_messageList[index] is CustomMessage ) && _messageList[index].type =="extension_poll" ) {
+      debugPrint("_messageList[index].type"
+          " ${(_messageList[index] as CustomMessage).metadata?["@injected"]["extensions"]["polls"]["results"]  }");
+      return PollWidget(passedMessage: (_messageList[index] as CustomMessage),  conversation: widget.conversation,
+      votePoll: choosePoll,
+      );
+    }
+    else {
       return const Text("No match");
     }
   }
