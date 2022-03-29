@@ -681,7 +681,7 @@ class _MessageListState extends State<MessageList>
 
     }else if ( (_messageList[index] is CustomMessage ) && _messageList[index].type =="extension_poll" ) {
       debugPrint("_messageList[index].type"
-          " ${(_messageList[index] as CustomMessage).metadata?["@injected"]["extensions"]["polls"]["results"]  }");
+          " ${(_messageList[index] as CustomMessage).metadata?["@injected"]?["extensions"]?["polls"]?["results"]??""  }");
       return PollWidget(passedMessage: (_messageList[index] as CustomMessage),  conversation: widget.conversation,
       votePoll: choosePoll,
       );
@@ -703,7 +703,7 @@ class _MessageListState extends State<MessageList>
     }
 
     FilePickerResult? result =
-    await FilePicker.platform.pickFiles(type: FileType.any);
+    await FilePicker.platform.pickFiles(type: FileType.media);
 
     if (result != null && result.files.single.path != null) {
       filePath = result.files.single.path!;

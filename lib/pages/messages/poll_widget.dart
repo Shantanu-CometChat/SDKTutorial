@@ -96,6 +96,8 @@ class _PollWidgetState extends State<PollWidget> {
   }
 
   getRadio(String id, String value) {
+    var count  = widget.passedMessage.metadata?["@injected"]?["extensions"]?["polls"]?["results"]?["options"]?[id]?["count"]??0;
+
     return 
       Row(
         mainAxisSize: MainAxisSize.min,
@@ -118,7 +120,7 @@ class _PollWidgetState extends State<PollWidget> {
             });
         }
       }),
-          ), Text("$value", style: TextStyle(color: sentByMe == true
+          ), Text("$value ($count)", style: TextStyle(color: sentByMe == true
               ? const Color(0xffFFFFFF).withOpacity(0.92)
               : Colors.black),)
         ],
