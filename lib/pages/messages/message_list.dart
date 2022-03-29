@@ -57,8 +57,6 @@ class _MessageListState extends State<MessageList>
     CometChat.addMessageListener("listenerId", this);
     _focus.addListener(_onFocusChange);
 
-    markRead();
-
 
     if (widget.conversation.conversationType == "user") {
       conversationWithId = (widget.conversation.conversationWith as User).uid;
@@ -123,16 +121,7 @@ class _MessageListState extends State<MessageList>
   }
 
 
-  markRead(){
 
-    if (widget.conversation.lastMessage != null &&
-        widget.conversation.lastMessage?.readAt == null) {
-      CometChat.markAsRead(widget.conversation.lastMessage!,
-          onSuccess: (String res) {}, onError: (CometChatException e) {});
-    }
-
-
-  }
 
   void _onFocusChange() {
     if (_focus.hasFocus) {
