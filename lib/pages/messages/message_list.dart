@@ -55,6 +55,12 @@ class _MessageListState extends State<MessageList>
 
   @override
   void initState() {
+    if (widget.conversation.lastMessage != null &&
+        widget.conversation.lastMessage?.readAt == null) {
+      CometChat.markAsRead(widget.conversation.lastMessage!,
+          onSuccess: (String res) {}, onError: (CometChatException e) {});
+    }
+
     int limit = 2;
     if (widget.conversation.conversationType == "user") {
       conversationWithId = (widget.conversation.conversationWith as User).uid;

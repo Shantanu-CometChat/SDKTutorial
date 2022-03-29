@@ -24,6 +24,7 @@ class _LoginState extends State<Login> {
     MaterialButtonUserModel(
         "superhero4", "SUPERHERO5", "assets/cyclops_avatar.png"),
   ];
+  String customUidLogin = "";
 
   @override
   void initState() {
@@ -46,12 +47,12 @@ class _LoginState extends State<Login> {
   }
 
   //Login User function must pass userid and authkey should be used only while developing
-  loginUser(MaterialButtonUserModel model) async {
+  loginUser(String userId) async {
     showLoadingIndicatorDialog(context);
 
     User? _user = await CometChat.getLoggedInUser();
     if (_user == null) {
-      await CometChat.login(model.userId, CometChatAuthConstants.authKey,
+      await CometChat.login(userId, CometChatAuthConstants.authKey,
           onSuccess: (User loggedInUser) {
         debugPrint("Login Successful : $loggedInUser");
         _user = loggedInUser;
@@ -74,7 +75,7 @@ class _LoginState extends State<Login> {
       color: Colors.black,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10.0)),
       onPressed: () {
-        loginUser(model);
+        loginUser(model.userId);
       },
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceAround,
@@ -165,6 +166,47 @@ class _LoginState extends State<Login> {
                               fontWeight: FontWeight.bold,
                               fontSize: 18)))
                 ],
+              ),
+              const SizedBox(
+                height: 10,
+              ),
+              const Divider(),
+              Wrap(
+                children: const [
+                  Text(
+                    "Login with Custom UID",
+                    style: TextStyle(color: Colors.black38, fontSize: 25),
+                  )
+                ],
+              ),
+              const SizedBox(
+                height: 10,
+              ),
+              TextFormField(
+                onChanged: (val) {
+                  customUidLogin = val;
+                },
+                decoration: const InputDecoration(
+                  border: OutlineInputBorder(),
+                  labelText: 'UID',
+                  hintText: 'UID',
+                ),
+              ),
+              Center(
+                child: MaterialButton(
+                  color: Colors.black,
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10.0)),
+                  onPressed: () {
+                    if (customUidLogin.isNotEmpty) {
+                      loginUser(customUidLogin);
+                    }
+                  },
+                  child: const Text(
+                    "Login",
+                    style: const TextStyle(color: Colors.white, fontSize: 14.0),
+                  ),
+                ),
               )
             ],
           )),

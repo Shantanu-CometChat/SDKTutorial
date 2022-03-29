@@ -1,5 +1,6 @@
 import 'package:cometchat/cometchat_sdk.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:sdk_tutorial/Utils/custom_toast.dart';
 import 'package:sdk_tutorial/Utils/loading_indicator.dart';
 import 'package:sdk_tutorial/Utils/slide_menu.dart';
@@ -7,6 +8,8 @@ import 'package:sdk_tutorial/pages/messages/message_list.dart';
 import 'package:badges/badges.dart';
 
 import '../Utils/item_fetcher.dart';
+import '../constants.dart';
+import 'messages/message_receipts.dart';
 
 class ConversationList extends StatefulWidget {
   const ConversationList({Key? key}) : super(key: key);
@@ -243,6 +246,47 @@ class _ConversationListState extends State<ConversationList>
     });
   }
 
+  //----------- get last message text-----------
+  Widget? getLastMessage(BaseMessage? message) {
+    if (message == null) return null;
+
+    CometChat.markAsDelivered(message, onSuccess: (String res) {
+      debugPrint(res);
+    }, onError: (CometChatException e) {
+      debugPrint('$e');
+    });
+
+    return Row(
+      children: [
+        if (message.sender != null && message.sender!.uid == USERID)
+          MessageReceipts(
+            passedMessage: message,
+            showTime: false,
+          ),
+        if (message.type != CometChatMessageType.text) Text(message.type),
+        if (message.type == CometChatMessageType.text)
+          Text((message as TextMessage).text),
+      ],
+    );
+  }
+
+  //----------- last message update time in short-----------
+  String getLastMessageUpdateTime(DateTime? lastMessageTime) {
+    var formatter = DateFormat("yyyy-MM-dd");
+
+    if (lastMessageTime == null) return '';
+    DateTime now = DateTime.now();
+    if (now.difference(lastMessageTime).inSeconds < 60) {
+      return 'Just Now';
+    } else if (formatter.format(lastMessageTime) == formatter.format(now)) {
+      return DateFormat("h:mma").format(lastMessageTime);
+    } else if (now.difference(lastMessageTime).inDays == 1) {
+      return "Yesterday";
+    } else {
+      return formatter.format(lastMessageTime);
+    }
+  }
+
   Widget getLoadingIndicator() {
     return const Center(
       child: CircularProgressIndicator(),
@@ -323,22 +367,29 @@ class _ConversationListState extends State<ConversationList>
                             )
                           : Text(_name.substring(0, 2))),
                 ),
-                trailing: unreadCount != ''
-                    ? Badge(
+                trailing: Column(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    Text(getLastMessageUpdateTime(
+                        conversationList[index].updatedAt)),
+                    if (unreadCount != '')
+                      Badge(
                         toAnimate: false,
                         shape: BadgeShape.circle,
                         badgeColor: Colors.blue,
                         badgeContent: Text(unreadCount,
                             style: const TextStyle(color: Colors.white)),
                       )
-                    : null,
+                  ],
+                ),
                 title: Text(_name),
                 subtitle: typingIndicatorMap.contains(index)
-                    ? Text(
+                    ? const Text(
                         'is typing...',
                         style: TextStyle(color: Colors.blue),
                       )
-                    : null),
+                    : getLastMessage(conversationList[index].lastMessage)),
           ),
         ),
       ),
