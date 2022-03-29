@@ -102,32 +102,58 @@ class _MessageFunctionsState extends State<MessageFunctions> {
                     height: 72,
                     child: Center(
                       child: ListTile(
-                          leading: CircleAvatar(
-                              child: iconUrl != null && iconUrl.trim() != ''
-                                  ? Image.network(
-                                      iconUrl,
-                                    )
-                                  : Center(
-                                      child: Text(
-                                          widget.passedMessage.sender!.name),
-                                    )),
-                          title: title,
-                          subtitle: Column(
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                  "Sent At :${DateFormat("yyyy-MM-dd hh:mm:ss").format(widget.passedMessage.sentAt!)} "),
-                              if (widget.passedMessage.deliveredAt != null)
-                                Text(
-                                    "Delivered At :${DateFormat("yyyy-MM-dd hh:mm:ss").format(widget.passedMessage.deliveredAt!)} "),
-                              if (widget.passedMessage.readAt != null)
-                                Text(
-                                    "Read At :${DateFormat("yyyy-MM-dd hh:mm:ss").format(widget.passedMessage.readAt!)} "),
-                            ],
-                          )),
+                        leading: CircleAvatar(
+                            child: iconUrl != null && iconUrl.trim() != ''
+                                ? Image.network(
+                                    iconUrl,
+                                  )
+                                : Center(
+                                    child:
+                                        Text(widget.passedMessage.sender!.name),
+                                  )),
+                        title: title,
+                      ),
                     )),
               ),
+              if (widget.passedMessage.sentAt != null)
+                Card(
+                  child: SizedBox(
+                      height: 50,
+                      child: ListTile(
+                        trailing: Text(
+                            '${DateFormat("yyyy-MM-dd hh:mm:ss").format(widget.passedMessage.sentAt!)}'),
+                        title: const Text(
+                          "Sent At",
+                          style: TextStyle(color: Colors.blue),
+                        ),
+                      )),
+                ),
+              if (widget.passedMessage.deliveredAt != null)
+                Card(
+                  child: SizedBox(
+                      height: 50,
+                      child: ListTile(
+                        trailing: Text(
+                            '${DateFormat("yyyy-MM-dd hh:mm:ss").format(widget.passedMessage.deliveredAt!)}'),
+                        title: const Text(
+                          "Delivered At",
+                          style: TextStyle(color: Colors.blue),
+                        ),
+                      )),
+                ),
+              if (widget.passedMessage.readAt != null)
+                Card(
+                  child: SizedBox(
+                      height: 50,
+                      child: ListTile(
+                        trailing: Text(
+                            '${DateFormat("yyyy-MM-dd hh:mm:ss").format(widget.passedMessage.readAt!)}'),
+                        title: const Text(
+                          "Read At",
+                          style: TextStyle(color: Colors.blue),
+                        ),
+                      )),
+                ),
               if (widget.passedMessage.sender!.uid == USERID)
                 Card(
                   child: SizedBox(

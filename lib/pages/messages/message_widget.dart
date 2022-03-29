@@ -26,60 +26,6 @@ class _MessageWidgetState extends State<MessageWidget> {
   bool sentByMe = false;
 
   @override
-  void initState() {
-    // TODO: implement initState
-    super.initState();
-  }
-
-  showFunctions() {
-    showModalBottomSheet(
-        context: context,
-        builder: (context) {
-          return Container(
-            decoration: BoxDecoration(borderRadius: BorderRadius.circular(20)),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: <Widget>[
-                ListTile(
-                  leading: const Icon(
-                    Icons.edit,
-                    color: Colors.blue,
-                  ),
-                  title: const Text(
-                    'Edit',
-                    style: TextStyle(color: Colors.blue),
-                  ),
-                  onTap: () {
-                    Navigator.pop(context);
-                  },
-                ),
-                ListTile(
-                  leading: const Icon(
-                    Icons.delete,
-                    color: Colors.red,
-                  ),
-                  title: const Text(
-                    'Delete',
-                    style: TextStyle(color: Colors.red),
-                  ),
-                  onTap: () {
-                    Navigator.pop(context);
-                  },
-                ),
-                ListTile(
-                  leading: const Icon(Icons.info),
-                  title: const Text('Details'),
-                  onTap: () {
-                    Navigator.pop(context);
-                  },
-                ),
-              ],
-            ),
-          );
-        });
-  }
-
-  @override
   Widget build(BuildContext context) {
     if (USERID == widget.passedMessage.sender!.uid) {
       sentByMe = true;
@@ -106,7 +52,6 @@ class _MessageWidgetState extends State<MessageWidget> {
                       color: const Color(0xff000000).withOpacity(0.6),
                       fontSize: 13)),
             GestureDetector(
-              onLongPress: showFunctions,
               onTap: () async {
                 Navigator.push(
                     context,

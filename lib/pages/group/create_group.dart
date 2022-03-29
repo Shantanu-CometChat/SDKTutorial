@@ -24,7 +24,7 @@ class _CreateGroupState extends State<CreateGroup> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Create Group"),
+        title: const Text("Create Group"),
       ),
       body: SingleChildScrollView(
         child: Form(
@@ -102,7 +102,6 @@ class _CreateGroupState extends State<CreateGroup> {
                       }).toList(),
                       onChanged: (String? val) {
                         groupType = val;
-                        print(groupType);
                         setState(() {});
                       },
                     ),
@@ -162,8 +161,8 @@ class _CreateGroupState extends State<CreateGroup> {
                       }
                     }
                   },
-                  child: Text("Create")),
-              SizedBox(
+                  child: const Text("Create")),
+              const SizedBox(
                 height: 10,
               ),
               if (isLoading) const CircularProgressIndicator()

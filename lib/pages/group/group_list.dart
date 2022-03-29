@@ -1,7 +1,6 @@
 import 'package:cometchat/cometchat_sdk.dart';
 import 'package:flutter/material.dart';
 import 'package:sdk_tutorial/pages/group/create_group.dart';
-import 'package:sdk_tutorial/pages/group/group_functions.dart';
 import '../messages/message_list.dart';
 
 class CometChatGroupList extends StatefulWidget {
@@ -146,7 +145,7 @@ class _CometChatGroupListState extends State<CometChatGroupList> {
           },
           child: const Icon(Icons.add)),
       body: isLoading
-          ? Center(child: CircularProgressIndicator())
+          ? const Center(child: CircularProgressIndicator())
           : ListView.builder(
               padding: EdgeInsets.zero,
               itemCount:

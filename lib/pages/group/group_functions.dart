@@ -25,11 +25,17 @@ class _GroupFunctionsState extends State<GroupFunctions> {
   bool isGroupOwner = false;
   String groupPassword = "";
   String addMemberUid = "";
+  int onlineMemberCount = 0;
+  int unreadCount = 0;
+  int? lastDeliveredMessageId;
 
   @override
   void initState() {
     super.initState();
     getGroupDetails();
+    getOnlineGroupMemberCount();
+    getUnreadMessageCount();
+    getLastMessageId();
   }
 
   getGroupDetails() async {
@@ -116,6 +122,54 @@ class _GroupFunctionsState extends State<GroupFunctions> {
           debugPrint(
               "Group Member addition failed with exception: ${e.message}");
         });
+  }
+
+  getOnlineGroupMemberCount() {
+    String groupId = widget.groupId;
+    CometChat.getOnlineGroupMemberCount([groupId],
+        onSuccess: (Map<String, int> count) {
+      onlineMemberCount = count[groupId] ?? 0;
+      setState(() {});
+      debugPrint("Fetched Online Group Member Count Successfully : $count ");
+    }, onError: (CometChatException e) {
+      debugPrint("Online Group Member  failed with exception: ${e.message}");
+    });
+  }
+
+  getUnreadMessageCount() async {
+    CometChat.getUnreadMessageCount(
+        hideMessagesFromBlockedUsers: true,
+        onSuccess: (Map<String, Map<String, int>> map) {
+          Map<String, int>? groupCounts = map['group'];
+          if (groupCounts != null) {
+            unreadCount = groupCounts[widget.groupId] ?? 0;
+            setState(() {});
+          }
+          debugPrint(map.toString());
+        },
+        onError: (e) {
+          debugPrint(e.toString());
+        });
+  }
+
+  getLastMessageId() async {
+    lastDeliveredMessageId = await CometChat.getLastDeliveredMessageId();
+    debugPrint("$lastDeliveredMessageId");
+    setState(() {});
+  }
+
+  tagConversation() {
+    String guid = widget.groupId;
+    String conversationType = ConversationType.group;
+    List<String> tags = [];
+    tags.add("archived");
+
+    CometChat.tagConversation(guid, conversationType, tags,
+        onSuccess: (Conversation conversation) {
+      debugPrint("Conversation tagged Successfully : $conversation");
+    }, onError: (CometChatException e) {
+      debugPrint("Conversation tagging failed  : ${e.message}");
+    });
   }
 
   @override
@@ -207,6 +261,38 @@ class _GroupFunctionsState extends State<GroupFunctions> {
                               trailing: const Icon(Icons.arrow_forward_ios),
                             )),
                       ),
+                    Card(
+                      child: SizedBox(
+                          height: 50,
+                          child: ListTile(
+                            trailing: Text('$onlineMemberCount'),
+                            title: const Text("Online Member Count"),
+                          )),
+                    ),
+                    Card(
+                      child: SizedBox(
+                          height: 50,
+                          child: ListTile(
+                            trailing: Text('$unreadCount'),
+                            title: const Text("Unread Message Count"),
+                          )),
+                    ),
+                    Card(
+                      child: SizedBox(
+                          height: 50,
+                          child: ListTile(
+                            trailing: Text('$lastDeliveredMessageId'),
+                            title: const Text("Last Delivered MessageId"),
+                          )),
+                    ),
+                    Card(
+                      child: SizedBox(
+                          height: 50,
+                          child: ListTile(
+                            onTap: tagConversation,
+                            title: const Text("Tag Conversation"),
+                          )),
+                    ),
                     if (group.owner == widget.loggedInUserId)
                       Card(
                         child: SizedBox(

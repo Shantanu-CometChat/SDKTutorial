@@ -114,14 +114,12 @@ class _ConversationListState extends State<ConversationList>
   //----------------Message Listeners end----------------------------------------------
 
   refreshSingleConversation(BaseMessage message, bool isActionMessage) async {
-    // await CometChat.getConversationFromMessage(message,
-    //     onSuccess: (Conversation conversation) {
-    //   if (message.metadata != null &&
-    //       message.metadata!["incrementUnreadCount"] != null) {
-    //
-    //   }
-    //   update(conversation, isActionMessage);
-    // }, onError: (_) {});
+    await CometChat.getConversationFromMessage(message,
+        onSuccess: (Conversation conversation) {
+      if (message.metadata != null &&
+          message.metadata!["incrementUnreadCount"] != null) {}
+      update(conversation, isActionMessage);
+    }, onError: (_) {});
   }
 
   ///Update the conversation with new conversation Object matched according to conversation id ,  if not matched inserted at top
@@ -163,25 +161,25 @@ class _ConversationListState extends State<ConversationList>
         BaseMessage? lastmessage = conversation.lastMessage;
 
         //Check if receipt type is delivered
-        // if (lastmessage != null &&
-        //     lastmessage.deliveredAt == null &&
-        //     receipt.receiptType == CometChatReceiptType.delivered &&
-        //     receipt.messageId == lastmessage.id) {
-        //   lastmessage.deliveredAt = receipt.deliveredAt;
-        //   conversationList[i].lastMessage = lastmessage;
-        //   setState(() {});
-        //   break;
-        // } else if (lastmessage != null &&
-        //     lastmessage.readAt == null &&
-        //     receipt.receiptType == CometChatReceiptType.read &&
-        //     receipt.messageId == lastmessage.id) {
-        //   //if receipt type is read
-        //   lastmessage.readAt = receipt.readAt;
-        //   conversationList[i].lastMessage = lastmessage;
-        //   setState(() {});
-        //
-        //   break;
-        // }
+        if (lastmessage != null &&
+            lastmessage.deliveredAt == null &&
+            receipt.receiptType == CometChatReceiptType.delivered &&
+            receipt.messageId == lastmessage.id) {
+          lastmessage.deliveredAt = receipt.deliveredAt;
+          conversationList[i].lastMessage = lastmessage;
+          setState(() {});
+          break;
+        } else if (lastmessage != null &&
+            lastmessage.readAt == null &&
+            receipt.receiptType == CometChatReceiptType.read &&
+            receipt.messageId == lastmessage.id) {
+          //if receipt type is read
+          lastmessage.readAt = receipt.readAt;
+          conversationList[i].lastMessage = lastmessage;
+          setState(() {});
+
+          break;
+        }
       }
     }
   }
