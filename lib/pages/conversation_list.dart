@@ -20,7 +20,7 @@ class ConversationList extends StatefulWidget {
 
 class _ConversationListState extends State<ConversationList>
     with MessageListener {
-  final List<Conversation> conversationList = [];
+  List<Conversation> conversationList = [];
   final itemFetcher = ItemFetcher<Conversation>();
 
   bool isLoading = true;
@@ -31,7 +31,10 @@ class _ConversationListState extends State<ConversationList>
   @override
   void initState() {
     super.initState();
+    requestBuilder();
+  }
 
+  requestBuilder() {
     conversationRequest = (ConversationsRequestBuilder()..limit = 30
         // ..tags = []
         // ..withUserAndGroupTags = true
@@ -327,13 +330,13 @@ class _ConversationListState extends State<ConversationList>
             child: Column(
               mainAxisSize: MainAxisSize.min,
               mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                const Icon(
+              children: const [
+                Icon(
                   Icons.delete,
                   color: Colors.white,
                   size: 25,
                 ),
-                const Text(
+                Text(
                   "Delete",
                   style: TextStyle(color: Colors.white, fontSize: 12),
                   maxLines: 1,
@@ -350,13 +353,15 @@ class _ConversationListState extends State<ConversationList>
           width: MediaQuery.of(context).size.width,
           child: Center(
             child: ListTile(
-                onTap: () {
-                  Navigator.push(
+                onTap: () async {
+                  await Navigator.push(
                       context,
                       MaterialPageRoute(
                           builder: (context) => MessageList(
                                 conversation: conversationList[index],
                               )));
+                  conversationList = [];
+                  requestBuilder();
                 },
                 leading: Hero(
                   tag: conversationList[index],
